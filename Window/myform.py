@@ -1,14 +1,19 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QMessageBox, QWidget
+import sys
 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(QWidget):
+
+    def __init__(self):
+        super().__init__()
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(602, 700)
         MainWindow.setStyleSheet("background-color: rgb(40, 40, 40);")
 
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
         self.label_text_3 = QtWidgets.QLabel(self.centralwidget)
@@ -126,7 +131,8 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         self.label_text.setFont(font)
         self.label_text.setStyleSheet("color: rgb(225, 225, 225);")
-        self.label_text.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_text.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_text.setObjectName("label_text")
         self.horizontalLayout_diameter.addWidget(self.label_text)
 
@@ -144,7 +150,8 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         self.label_text_2.setFont(font)
         self.label_text_2.setStyleSheet("color: rgb(225, 225, 225);")
-        self.label_text_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_text_2.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_text_2.setObjectName("label_text_2")
         self.horizontalLayout_diameter.addWidget(self.label_text_2)
 
@@ -273,6 +280,8 @@ class Ui_MainWindow(object):
         self.about.setObjectName("about")
         self.exit = QtGui.QAction(MainWindow)
         self.exit.setObjectName("exit")
+        self.exit.triggered.connect(self.close_window)
+
         self.menu.addAction(self.instraction)
         self.menu.addAction(self.about)
         self.menu.addSeparator()
@@ -313,17 +322,25 @@ class Ui_MainWindow(object):
         """
         path_to_file = QtWidgets.QFileDialog.getOpenFileName(filter='*.csv')[0]
 
-
     def path_to_save(self):
         """Считывает путь к указанной директории для сохранения конечных результатов.
         """
         path_to_dir = QtWidgets.QFileDialog.getExistingDirectory()
 
+    def close_window(self):
+        """Закрывает приложение.
+        """
+        # reply = QMessageBox()
+        # reply.setWindowTitle("Выход")
+        # reply.setInformativeText("Завершить работу с приложением?")
+        #
+        # reply.exec()
+        app.exit()
+
+
 
 
 if __name__ == "__main__":
-    import sys
-
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
