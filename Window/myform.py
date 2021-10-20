@@ -1,5 +1,5 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtWidgets import QMessageBox, QWidget
+from PyQt6.QtWidgets import QWidget, QMessageBox
 import sys
 
 
@@ -76,7 +76,7 @@ class Ui_MainWindow(QWidget):
         self.horizontalLayout_2.addWidget(self.ButtonSave)
         self.ButtonSave.clicked.connect(self.path_to_save)
 
-        self.save_label = QtWidgets.QLabel(self.layoutWidget)
+        self.save_label = QtWidgets.QLineEdit(self.layoutWidget)
         self.save_label.setMaximumSize(QtCore.QSize(16777215, 30))
         font = QtGui.QFont()
         font.setPointSize(11)
@@ -182,7 +182,7 @@ class Ui_MainWindow(QWidget):
         self.horizontalLayout.addWidget(self.ButtonPath)
         self.ButtonPath.clicked.connect(self.path_to_open)
 
-        self.path_label = QtWidgets.QLabel(self.widget1)
+        self.path_label = QtWidgets.QLineEdit(self.widget1)
         self.path_label.setMaximumSize(QtCore.QSize(16777215, 30))
         font = QtGui.QFont()
         font.setPointSize(11)
@@ -322,22 +322,33 @@ class Ui_MainWindow(QWidget):
         """
         path_to_file = QtWidgets.QFileDialog.getOpenFileName(filter='*.csv')[0]
 
+        if path_to_file:
+            self.path_label.setText(path_to_file)
+
     def path_to_save(self):
         """Считывает путь к указанной директории для сохранения конечных результатов.
         """
         path_to_dir = QtWidgets.QFileDialog.getExistingDirectory()
 
+        if path_to_dir:
+            self.save_label.setText(path_to_dir)
+
     def close_window(self):
         """Закрывает приложение.
         """
-        # reply = QMessageBox()
-        # reply.setWindowTitle("Выход")
-        # reply.setInformativeText("Завершить работу с приложением?")
-        #
-        # reply.exec()
-        app.exit()
+        reply = QMessageBox(self)
+        reply.setWindowTitle("Выход")
+        reply.setText("Завершить работу с приложением?")
+        reply.setIcon(QMessageBox.Icon.Question)
+
+        yesButton = reply.addButton("Выйти", reply.ButtonRole.ActionRole)
+        noButton = reply.addButton("Остаться", reply.ButtonRole.NoRole)
 
 
+        reply.exec()
+
+        if reply.clickedButton() == yesButton:
+            app.exit()
 
 
 if __name__ == "__main__":
