@@ -3,6 +3,18 @@ from PyQt6.QtWidgets import QWidget, QMessageBox
 import sys
 
 
+def analytical_part(path_to_file, diam, separate_graph, inverse_graph, path_to_save, files_name):
+    """Основное тело аналитического расчета.
+    """
+    print(path_to_file)
+    print(diam)
+    print(separate_graph)
+    print(inverse_graph)
+    print(path_to_save)
+    print(files_name)
+
+
+
 class Ui_MainWindow(QWidget):
 
     def __init__(self):
@@ -102,6 +114,7 @@ class Ui_MainWindow(QWidget):
         self.startButton.setFont(font)
         self.startButton.setStyleSheet("background-color: rgb(73, 156, 84);")
         self.startButton.setObjectName("startButton")
+        self.startButton.clicked.connect(self.start_analytical_part)
 
         self.logging = QtWidgets.QLabel(self.centralwidget)
         self.logging.setGeometry(QtCore.QRect(180, 530, 381, 111))
@@ -344,11 +357,27 @@ class Ui_MainWindow(QWidget):
         yesButton = reply.addButton("Выйти", reply.ButtonRole.ActionRole)
         noButton = reply.addButton("Остаться", reply.ButtonRole.NoRole)
 
-
         reply.exec()
 
         if reply.clickedButton() == yesButton:
             app.exit()
+
+    def start_analytical_part(self):
+        """Начинает парсинг и расчет документа.
+        """
+        if float(self.diameter.text()) <= 0:
+            print('Не указан диаметер контакта.')
+
+        if '.csv' not in self.path_label.text():
+            print('Файл не выбран или выбран не верно.')
+
+        analytical_part(self.path_label.text(),
+                        self.diameter.text(),
+                        self.check_separate_graph.isChecked(),
+                        self.check_inverse_graph.isChecked(),
+                        self.save_label.text(),
+                        self.output_filename.text()
+                        )
 
 
 if __name__ == "__main__":
@@ -357,4 +386,5 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
+
     sys.exit(app.exec())
