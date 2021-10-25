@@ -157,6 +157,11 @@ def analytical_run(path_to_file, diam, separate_graph, inverse_graph, path_to_sa
         i_out_f = arr_separator(i_out_f)
         v_out_f = arr_separator(v_out_f)
 
+        # Обратные токи и напряжения
+        if inverse_graph:
+            i_out_r = arr_separator(i_out_r)
+            v_out_r = arr_separator(v_out_r)
+
         i_out_f, v_out_f = filter_mass(v_out_f, i_out_f)
 
         d: float = float(diam)
@@ -169,16 +174,3 @@ def analytical_run(path_to_file, diam, separate_graph, inverse_graph, path_to_sa
                 print(fi)
         else:
             print("Значения не найдены.")
-
-        # Обратные токи и напряжения
-        # i_out_r = arr_separator(i_out_r)
-        # v_out_r = arr_separator(v_out_r)
-
-
-
-    # print(path_to_file)
-    # print(diam)
-    # print(separate_graph)
-    # print(inverse_graph)
-    # print(path_to_save)
-    # print(files_name)
