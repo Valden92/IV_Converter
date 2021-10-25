@@ -2,17 +2,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QWidget, QMessageBox
 import sys
 
-
-def analytical_part(path_to_file, diam, separate_graph, inverse_graph, path_to_save, files_name):
-    """Основное тело аналитического расчета.
-    """
-    print(path_to_file)
-    print(diam)
-    print(separate_graph)
-    print(inverse_graph)
-    print(path_to_save)
-    print(files_name)
-
+from analitycal_func import analytical_run
 
 
 class Ui_MainWindow(QWidget):
@@ -371,13 +361,13 @@ class Ui_MainWindow(QWidget):
         if '.csv' not in self.path_label.text():
             print('Файл не выбран или выбран не верно.')
 
-        analytical_part(self.path_label.text(),
-                        self.diameter.text(),
-                        self.check_separate_graph.isChecked(),
-                        self.check_inverse_graph.isChecked(),
-                        self.save_label.text(),
-                        self.output_filename.text()
-                        )
+        analytical_run(self.path_label.text(),
+                       self.diameter.text(),
+                       self.check_separate_graph.isChecked(),
+                       self.check_inverse_graph.isChecked(),
+                       self.save_label.text(),
+                       self.output_filename.text()
+                       )
 
 
 if __name__ == "__main__":
