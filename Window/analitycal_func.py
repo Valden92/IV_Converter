@@ -1,7 +1,6 @@
 import csv
 import numpy
 import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
 from math import log, exp, pi
 
 
@@ -32,7 +31,7 @@ def arr_separator(array: list) -> list:
 
 
 def filter_mass(error_massive: list, massive: list) -> (list, list):
-    """Отфильтровывает выпадающие значения по напряжению.
+    """Отфильтровывает выпадающие значения по напряжению и в соответсвии с этим корректирует длину массива токов.
     """
     c: int = 0
     filtered_i: list = []
@@ -96,7 +95,7 @@ def range_clipping(x: list, y: list) -> (list, list):
 
 def search_b(x: list, y: list) -> float:
     """
-    Поиск коэффициента b по методу наименьших квадратов.
+    Поиск коэффициента b по методу наименьших квадратов (МНК).
 
     :param  x - массив Напряжений.
     :param  y - массив Токов.
@@ -114,8 +113,8 @@ def search_fi(bi: float, d: float) -> float:
     """
     Поиск коэффициента Фи.
 
-    :param bi - коэффициент найденный по методу МНК в функции search_b
-    :param  d - диаметр контакта
+    :param bi - коэффициент найденный по методу МНК в функции search_b.
+    :param  d - диаметр контакта.
     :return f - Возвращаемый коэффициент Фи.
     """
     # Объявление констант.
@@ -129,48 +128,105 @@ def search_fi(bi: float, d: float) -> float:
     return f
 
 
+def show_plot(m_y, m_x, n_y=None, n_x=None):
+    """Строит графики для всех переданных данных.
+    """
+    data = [[m_y, m_x], [n_y, n_x]]
+
+    if n_y is None:
+        fig = plt.figure()
+        axs = fig.add_subplot(1, 1, 1)
+
+        # Настройки графика.
+        axs.set_yscale('log')
+        axs.minorticks_on()
+        axs.grid(True)
+        visual(data[0][0], data[0][1], axs)
+    else:
+        for i in range(2):
+            fig = plt.figure()
+            axs = fig.add_subplot(1, 1, 1)
+
+            # Настройки графика.
+            axs.set_yscale('log')
+            axs.minorticks_on()
+            axs.grid(True)
+            visual(data[i][0], data[i][1], axs)
+
+
+def visual(i_out: list, v_out: list, axis) -> None:
+    """Построение графика.
+    """
+    axs = axis
+
+    for x in range(len(i_out)):
+        current: list = list(map(abs, i_out[x]))
+        voltage: list = v_out[x][:len(i_out[x])]
+
+        plt.plot(voltage, current)
+        if max(voltage) < 0:
+            axs.set_xlim([min(voltage), 0])
+        else:
+            axs.set_xlim([0, max(voltage)])
+
+    plt.show()
+
+
 def analytical_run(path_to_file, diam, separate_graph, inverse_graph, path_to_save, files_name):
     """Основное тело парсинга файла и аналитического расчета.
+
+    :param   path_to_file - путь по которому находится обрабатываемый файл.
+    :param           diam - диаметр контакта, на котором проводятся измерения (в микрометрах).
+    :param separate_graph - булево значение "нужно ли строить графики по отдельности, если их много".
+    :param  inverse_graph - булево значение "нужно ли обрабатывать значения обратных токов и напряжений и строит по
+                            ним графики".
+    :param   path_to_save - путь для сохранения готовых файлов.
+    :param     files_name - общее название готовых файлов, позволяющее идентифицировать их.
+
+           direct_current - прямые токи в (...).
+           direct_voltage - прямые напряжения в (...).
+          reverse_current - обратные токи в (...).
+          reverse_voltage - обратыне напряжения в (...).
     """
     try:
         with open(path_to_file, 'r') as file:
             reader = csv.reader(file, delimiter=',')
 
-            i_out_f: list = []
-            v_out_f: list = []
+            direct_current: list = []
+            direct_voltage: list = []
 
             if inverse_graph:
-                i_out_r: list = []
-                v_out_r: list = []
+                reverse_current: list = []
+                reverse_voltage: list = []
 
             for line in reader:
                 if 'DataValue' in line:
-                    i_out_f.append(line[1])
-                    v_out_f.append(line[2])
+                    direct_current.append(line[1])
+                    direct_voltage.append(line[2])
+
                     if inverse_graph:
-                        i_out_r.append(line[3])
-                        v_out_r.append(line[4])
+                        reverse_current.append(line[3])
+                        reverse_voltage.append(line[4])
     except FileNotFoundError:
-        print('Файл не найден.')
+        raise FileNotFoundError('Файл не найден!')
     else:
         # Прямые токи и напряжения
-        i_out_f = arr_separator(i_out_f)
-        v_out_f = arr_separator(v_out_f)
-
-        # Обратные токи и напряжения
-        if inverse_graph:
-            i_out_r = arr_separator(i_out_r)
-            v_out_r = arr_separator(v_out_r)
-
-        i_out_f, v_out_f = filter_mass(v_out_f, i_out_f)
+        direct_current = arr_separator(direct_current)
+        direct_voltage = arr_separator(direct_voltage)
+        direct_current, direct_voltage = filter_mass(direct_voltage, direct_current)
 
         d: float = float(diam)
 
-        if len(i_out_f) > 0:
-            for q in range(len(i_out_f)):
-                i_f, v_f = range_clipping(i_out_f[q], v_out_f[q])
-                b = search_b(v_f, i_f)
-                fi = search_fi(b, d)
-                print(fi)
+        for i in range(len(direct_current)):
+            trunc_current, trunc_voltage = range_clipping(direct_current[i], direct_voltage[i])
+            b = search_b(trunc_voltage, trunc_current)
+            fi = search_fi(b, d)
+            print(fi)
+
+        if inverse_graph:
+            reverse_current = arr_separator(reverse_current)
+            reverse_voltage = arr_separator(reverse_voltage)
+
+            show_plot(direct_current, direct_voltage, reverse_current, reverse_voltage)
         else:
-            print("Значения не найдены.")
+            show_plot(direct_current, direct_voltage)
