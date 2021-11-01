@@ -356,7 +356,7 @@ class Ui_MainWindow(QWidget):
         """Начинает парсинг и расчет документа.
         """
         if float(self.diameter.text()) <= 0:
-            print('Не указан диаметер контакта.')
+            print('Не указан диаметр контакта.')
 
         if '.csv' not in self.path_label.text():
             print('Файл не выбран или выбран не верно.')

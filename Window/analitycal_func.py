@@ -1,6 +1,7 @@
 import csv
 import numpy
 import matplotlib.pyplot as plt
+import os
 from math import log, exp, pi
 
 
@@ -87,8 +88,8 @@ def range_clipping(x: list, y: list) -> (list, list):
     new_y - усеченный массив напряжений.
     """
     i, m = index_search(x)
-    new_x: list = list(map(log, x[i: m+1]))
-    new_y: list = y[i: m+1]
+    new_x: list = list(map(log, x[i: m + 1]))
+    new_y: list = y[i: m + 1]
 
     return new_x, new_y
 
@@ -119,42 +120,50 @@ def search_fi(bi: float, d: float) -> float:
     """
     # Объявление констант.
     __K: float = 1.38e-23  # Постоянная Больцмана.
-    __A: int = 264         # Постоянная Ридчарсона.
-    __T: int = 300         # Температура нагрева во время измерения.
-    __Q: float = 1.6e-19   # Заряд
+    __A: int = 264  # Постоянная Ридчарсона.
+    __T: int = 300  # Температура нагрева во время измерения.
+    __Q: float = 1.6e-19  # Заряд
 
     f: float = ((__K * __T) / __Q) * log(((__A * (__T ** 2)) / (bi / (((d ** 2) * pi) / 4))))
 
     return f
 
 
-def show_plot(m_y, m_x, n_y=None, n_x=None):
+def plot_settings():
+    fig = plt.figure()
+    axs = fig.add_subplot(1, 1, 1)
+
+    # Настройки графика.
+    axs.set_yscale('log')
+    axs.minorticks_on()
+    axs.grid(True)
+
+    return axs
+
+
+def show_plot(m_y, m_x, path_to_save=None, filename=None, n_y=None, n_x=None):
     """Строит графики для всех переданных данных.
     """
     data = [[m_y, m_x], [n_y, n_x]]
 
-    if n_y is None:
-        fig = plt.figure()
-        axs = fig.add_subplot(1, 1, 1)
-
-        # Настройки графика.
-        axs.set_yscale('log')
-        axs.minorticks_on()
-        axs.grid(True)
-        visual(data[0][0], data[0][1], axs)
+    if n_y is None or n_x is None:
+        axs = plot_settings()
+        filename += '_direct'
+        visual(data[0][0], data[0][1], path_to_save, filename, axs)
     else:
         for i in range(2):
-            fig = plt.figure()
-            axs = fig.add_subplot(1, 1, 1)
+            axs = plot_settings()
+            new_name = None
 
-            # Настройки графика.
-            axs.set_yscale('log')
-            axs.minorticks_on()
-            axs.grid(True)
-            visual(data[i][0], data[i][1], axs)
+            if i == 0:
+                new_name = filename + "_direct"
+            elif i == 1:
+                new_name = filename + "_reverse"
+
+            visual(data[i][0], data[i][1], path_to_save, new_name, axs)
 
 
-def visual(i_out: list, v_out: list, axis) -> None:
+def visual(i_out: list, v_out: list, path_to_save, filename, axis) -> None:
     """Построение графика.
     """
     axs = axis
@@ -169,7 +178,18 @@ def visual(i_out: list, v_out: list, axis) -> None:
         else:
             axs.set_xlim([0, max(voltage)])
 
-    plt.show()
+    if os.path.isdir(path_to_save):
+        new_dir = os.path.join(path_to_save, 'graph')
+        if not os.path.isdir(new_dir):
+            os.mkdir(new_dir)
+        name = os.path.join(new_dir, filename + '.png')
+    else:
+        new_dir = os.path.join(os.getcwd(), 'graph')
+        if not os.path.isdir(new_dir):
+            os.mkdir(new_dir)
+        name = os.path.join(new_dir, filename + '.png')
+
+    plt.savefig(name)
 
 
 def analytical_run(path_to_file, diam, separate_graph, inverse_graph, path_to_save, files_name):
@@ -227,6 +247,6 @@ def analytical_run(path_to_file, diam, separate_graph, inverse_graph, path_to_sa
             reverse_current = arr_separator(reverse_current)
             reverse_voltage = arr_separator(reverse_voltage)
 
-            show_plot(direct_current, direct_voltage, reverse_current, reverse_voltage)
+            show_plot(direct_current, direct_voltage, path_to_save, files_name, reverse_current, reverse_voltage)
         else:
-            show_plot(direct_current, direct_voltage)
+            show_plot(direct_current, direct_voltage, path_to_save, files_name)
