@@ -120,16 +120,42 @@ def search_fi(bi: float, d: float) -> float:
     """
     # Объявление констант.
     __K: float = 1.38e-23  # Постоянная Больцмана.
-    __A: int = 264  # Постоянная Ридчарсона.
-    __T: int = 300  # Температура нагрева во время измерения.
-    __Q: float = 1.6e-19  # Заряд
+    __A: int = 264         # Постоянная Ридчарсона.
+    __T: int = 300         # Температура нагрева во время измерения.
+    __Q: float = 1.6e-19   # Заряд
 
     f: float = ((__K * __T) / __Q) * log(((__A * (__T ** 2)) / (bi / (((d ** 2) * pi) / 4))))
 
     return f
 
 
+def generate_filename(filename, path_to_save, counter=0):
+    """Генерирует новые директории и окончательное имя файла.
+    """
+
+    extension_dir = None
+    if counter == 0:
+        extension_dir = 'direct'
+    elif counter == 1:
+        extension_dir = 'reverse'
+
+    if os.path.isdir(path_to_save):
+        new_dir = os.path.join(path_to_save, extension_dir)
+        if not os.path.isdir(new_dir):
+            os.mkdir(new_dir)
+        name = os.path.join(new_dir, filename + '.png')
+    else:
+        new_dir = os.path.join(os.getcwd(), extension_dir)
+        if not os.path.isdir(new_dir):
+            os.mkdir(new_dir)
+        name = os.path.join(new_dir, filename + '.png')
+
+    return name
+
+
 def plot_settings():
+    """Создание объекта графика и его настроек.
+    """
     fig = plt.figure()
     axs = fig.add_subplot(1, 1, 1)
 
@@ -141,18 +167,16 @@ def plot_settings():
     return axs
 
 
-def show_plot(m_y, m_x, path_to_save=None, filename=None, n_y=None, n_x=None):
+def show_plot(m_y, m_x, path_to_save=None, filename=None, separate=False, n_y=None, n_x=None):
     """Строит графики для всех переданных данных.
     """
     data = [[m_y, m_x], [n_y, n_x]]
 
     if n_y is None or n_x is None:
-        axs = plot_settings()
         filename += '_direct'
-        visual(data[0][0], data[0][1], path_to_save, filename, axs)
+        visual(data[0][0], data[0][1], path_to_save, filename, separate)
     else:
         for i in range(2):
-            axs = plot_settings()
             new_name = None
 
             if i == 0:
@@ -160,36 +184,44 @@ def show_plot(m_y, m_x, path_to_save=None, filename=None, n_y=None, n_x=None):
             elif i == 1:
                 new_name = filename + "_reverse"
 
-            visual(data[i][0], data[i][1], path_to_save, new_name, axs)
+            visual(data[i][0], data[i][1], path_to_save, new_name, separate, i)
 
 
-def visual(i_out: list, v_out: list, path_to_save, filename, axis) -> None:
+def visual(i_out: list, v_out: list, path_to_save, filename, separate, counter=0) -> None:
     """Построение графика.
     """
-    axs = axis
+    if separate:
+        for x in range(len(i_out)):
+            axs = plot_settings()
 
-    for x in range(len(i_out)):
-        current: list = list(map(abs, i_out[x]))
-        voltage: list = v_out[x][:len(i_out[x])]
+            current: list = list(map(abs, i_out[x]))
+            voltage: list = v_out[x][:len(i_out[x])]
 
-        plt.plot(voltage, current)
-        if max(voltage) < 0:
-            axs.set_xlim([min(voltage), 0])
-        else:
-            axs.set_xlim([0, max(voltage)])
+            plt.plot(voltage, current)
+            if max(voltage) < 0:
+                axs.set_xlim([min(voltage), 0])
+            else:
+                axs.set_xlim([0, max(voltage)])
 
-    if os.path.isdir(path_to_save):
-        new_dir = os.path.join(path_to_save, 'graph')
-        if not os.path.isdir(new_dir):
-            os.mkdir(new_dir)
-        name = os.path.join(new_dir, filename + '.png')
+            new_name = filename + '_' + str(x)
+            name = generate_filename(new_name, path_to_save, counter)
+            plt.savefig(name)
+
     else:
-        new_dir = os.path.join(os.getcwd(), 'graph')
-        if not os.path.isdir(new_dir):
-            os.mkdir(new_dir)
-        name = os.path.join(new_dir, filename + '.png')
+        axs = plot_settings()
 
-    plt.savefig(name)
+        for x in range(len(i_out)):
+            current: list = list(map(abs, i_out[x]))
+            voltage: list = v_out[x][:len(i_out[x])]
+
+            plt.plot(voltage, current)
+            if max(voltage) < 0:
+                axs.set_xlim([min(voltage), 0])
+            else:
+                axs.set_xlim([0, max(voltage)])
+
+        name = generate_filename(filename, path_to_save, counter)
+        plt.savefig(name)
 
 
 def analytical_run(path_to_file, diam, separate_graph, inverse_graph, path_to_save, files_name):
@@ -247,6 +279,12 @@ def analytical_run(path_to_file, diam, separate_graph, inverse_graph, path_to_sa
             reverse_current = arr_separator(reverse_current)
             reverse_voltage = arr_separator(reverse_voltage)
 
-            show_plot(direct_current, direct_voltage, path_to_save, files_name, reverse_current, reverse_voltage)
+            show_plot(direct_current,
+                      direct_voltage,
+                      path_to_save,
+                      files_name,
+                      separate_graph,
+                      reverse_current,
+                      reverse_voltage)
         else:
-            show_plot(direct_current, direct_voltage, path_to_save, files_name)
+            show_plot(direct_current, direct_voltage, path_to_save, files_name, separate_graph)
