@@ -163,6 +163,10 @@ def plot_settings():
     axs.set_yscale('log')
     axs.minorticks_on()
     axs.grid(True)
+    plt.xlabel('Ось X')
+    plt.ylabel('Ось Y')
+    plt.title('Название графика')
+    plt.text(0, 7, "TEXT")
 
     return axs
 
@@ -172,9 +176,12 @@ def show_plot(m_y, m_x, path_to_save=None, filename=None, separate=False, n_y=No
     """
     data = [[m_y, m_x], [n_y, n_x]]
 
+    if filename == '  File Name...':
+        filename = ''
+
     if n_y is None or n_x is None:
-        filename += '_direct'
-        visual(data[0][0], data[0][1], path_to_save, filename, separate)
+        new_name = filename + "_direct"
+        visual(data[0][0], data[0][1], path_to_save, new_name, separate)
     else:
         for i in range(2):
             new_name = None

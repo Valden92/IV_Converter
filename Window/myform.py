@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QWidget, QMessageBox
 import sys
 
 from analitycal_func import analytical_run
+from analitycal_class import AnalitycalCalc
 
 
 class Ui_MainWindow(QWidget):
@@ -361,13 +362,22 @@ class Ui_MainWindow(QWidget):
         if '.csv' not in self.path_label.text():
             print('Файл не выбран или выбран не верно.')
 
-        analytical_run(self.path_label.text(),
-                       self.diameter.text(),
-                       self.check_separate_graph.isChecked(),
-                       self.check_inverse_graph.isChecked(),
-                       self.save_label.text(),
-                       self.output_filename.text()
-                       )
+        # analytical_run(self.path_label.text(),
+        #                self.diameter.text(),
+        #                self.check_separate_graph.isChecked(),
+        #                self.check_inverse_graph.isChecked(),
+        #                self.save_label.text(),
+        #                self.output_filename.text()
+        #                )
+        calc_obj = AnalitycalCalc(
+            self.path_label.text(),
+            self.diameter.text(),
+            self.check_separate_graph.isChecked(),
+            self.check_inverse_graph.isChecked(),
+            self.save_label.text(),
+            self.output_filename.text()
+        )
+        calc_obj.run_program()
 
 
 if __name__ == "__main__":
