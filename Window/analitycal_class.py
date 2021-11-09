@@ -193,20 +193,20 @@ class AnalitycalCalc:
 
     def __coefficient_calc(self):
         for i in range(len(self.direct_current)):
-            self.trunc_current[i], self.trunc_voltage[i] = range_clipping(self.direct_current[i], self.direct_voltage[i])
+            self.trunc_current[i], self.trunc_voltage[i] = range_clipping(self.direct_current[i],
+                                                                          self.direct_voltage[i])
             self.b[i] = search_b(self.trunc_voltage[i], self.trunc_current[i])
             self.fi[i] = search_fi(self.b[i], self.diameter)
 
     def print_coefficient(self):
-        for i in range(len(self.direct_current)):
-            print('b = ', self.b[i])
-            print('fi = ', self.fi[i])
+        if self.b:
+            for i in range(len(self.direct_current)):
+                print('b = ', self.b[i])
+                print('fi = ', self.fi[i])
+        else:
+            print('Коэффициенты не были рассчитаны.')
 
     def run_program(self):
         self.__read_file()
         self.__filter_mass()
         self.__coefficient_calc()
-
-        
-
-
