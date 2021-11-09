@@ -35,6 +35,9 @@ class AnalitycalCalc:
         self.b = {}
         self.fi = {}
 
+        # Прочие настройки
+        self.file_format = '.png'
+
     def __read_file(self):
         try:
             with open(self.path_to_file, 'r') as file:
@@ -95,6 +98,99 @@ class AnalitycalCalc:
             self.b[i] = self.__search_b(self.trunc_voltage[i], self.trunc_current[i])
             self.fi[i] = self.__search_fi(self.b[i], self.diameter)
 
+    def __range_clipping(self, x, y):
+        """Отсекает в массивах данные, входящие определенный диапазон и возвращает эти данные.
+
+        Данные отсекаются в диапазоне Токов [10е-5 : 10е-4].
+        Проводится отсечение значений Токов (x) и по этим же индексам отсечение значений Напряжений (y).
+
+            i - начальный индекс для отсечения.
+            m - конечный индекс для отсечения.
+        new_x - усеченный массив токов, привиденных к натуральному логарифму.
+        new_y - усеченный массив напряжений.
+        """
+        i, m = self.__index_search(x)
+        new_x = list(map(log, x[i: m + 1]))
+        new_y = y[i: m + 1]
+
+        return new_x, new_y
+
+    def __generate_filename(self, incomplete_name, graph_direction):
+        if self.filename == '  File Name...':
+            self.filename = 'VACh'
+
+        if os.path.isdir(self.path_to_save):
+            new_dir = os.path.join(self.path_to_save, graph_direction)
+            if not os.path.isdir(new_dir):
+                os.mkdir(new_dir)
+            filename = self.filename + '_' + incomplete_name + self.file_format
+            saving_path_name = os.path.join(new_dir, filename)
+        else:
+            new_dir = os.path.join(os.getcwd(), graph_direction)
+            if not os.path.isdir(new_dir):
+                os.mkdir(new_dir)
+            filename = self.filename + '_' + incomplete_name + self.file_format
+            saving_path_name = os.path.join(new_dir, filename)
+
+        return saving_path_name
+
+    def __plot_graphics(self):
+        """Строит графики по данным из файла.
+        """
+        if self.is_inverse:
+            self.__generate_graphics(self.direct_current, self.direct_voltage, 'direct')
+            self.__generate_graphics(self.reverse_current, self.reverse_voltage, 'reverse')
+        else:
+            self.__generate_graphics(self.direct_current, self.direct_voltage, 'direct')
+
+    def __generate_graphics(self, current, voltage, graph_direction):
+        if self.is_separate:
+            for i in range(len(current)):
+                axs = self.__plot_settings()
+                c = list(map(abs, current[i]))
+                v = voltage[i][:len(current[i])]
+
+                plt.plot(v, c)
+                if max(v) < 0:
+                    axs.set_xlim([min(v), 0])
+                else:
+                    axs.set_xlim([0, max(v)])
+
+                incomplete_name = graph_direction + '_' + str(i)
+                saving_path = self.__generate_filename(incomplete_name, graph_direction)
+                plt.savefig(saving_path)
+        else:
+            axs = self.__plot_settings()
+            for i in range(len(current)):
+                c = list(map(abs, current[i]))
+                v = voltage[i][:len(current[i])]
+
+                plt.plot(v, c)
+                if max(v) < 0:
+                    axs.set_xlim([min(v), 0])
+                else:
+                    axs.set_xlim([0, max(v)])
+
+            saving_path = self.__generate_filename(graph_direction, graph_direction)
+            plt.savefig(saving_path)
+
+    def __plot_settings(self):
+        """Создание объекта графика и его настроек.
+        """
+        fig = plt.figure()
+        axs = fig.add_subplot(1, 1, 1)
+
+        # Настройки графика.
+        axs.set_yscale('log')
+        axs.minorticks_on()
+        axs.grid(True)
+        plt.xlabel('Ось X')
+        plt.ylabel('Ось Y')
+        plt.title('Название графика')
+        plt.text(0, 7, "TEXT")
+
+        return axs
+
     def print_coefficient(self):
         if self.b:
             for i in range(len(self.direct_current)):
@@ -107,7 +203,8 @@ class AnalitycalCalc:
         self.__read_file()
         self.__filter_mass()
         self.__coefficient_calc()
-        self.print_coefficient()
+        # self.print_coefficient()
+        self.__plot_graphics()
 
     @staticmethod
     def __arr_separator(array):
@@ -134,23 +231,6 @@ class AnalitycalCalc:
             return time_missive
         else:
             return out
-
-    def __range_clipping(self, x, y):
-        """Отсекает в массивах данные, входящие определенный диапазон и возвращает эти данные.
-
-        Данные отсекаются в диапазоне Токов [10е-5 : 10е-4].
-        Проводится отсечение значений Токов (x) и по этим же индексам отсечение значений Напряжений (y).
-
-            i - начальный индекс для отсечения.
-            m - конечный индекс для отсечения.
-        new_x - усеченный массив токов, привиденных к натуральному логарифму.
-        new_y - усеченный массив напряжений.
-        """
-        i, m = self.__index_search(x)
-        new_x = list(map(log, x[i: m + 1]))
-        new_y = y[i: m + 1]
-
-        return new_x, new_y
 
     @staticmethod
     def __index_search(x):
