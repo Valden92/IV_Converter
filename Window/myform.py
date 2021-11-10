@@ -274,9 +274,14 @@ class Ui_MainWindow(QWidget):
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setStyleSheet("background-color: rgb(60, 63, 65);")
+        self.statusbar.setStyleSheet("color: rgb(100, 100, 100);\n"
+                                     "background-color: rgb(60, 63, 65);")
         self.statusbar.setObjectName("statusbar")
+        self.statusbar.showMessage('  (c) Created by Zaytsev D A  |  2021')
+
         MainWindow.setStatusBar(self.statusbar)
+
+
         self.instraction = QtGui.QAction(MainWindow)
         self.instraction.setObjectName("instraction")
         self.about = QtGui.QAction(MainWindow)
