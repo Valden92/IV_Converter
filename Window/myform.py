@@ -1,8 +1,8 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QWidget, QMessageBox
 import sys
-
-from analitycal_func import analytical_run
+import os
+# from analitycal_func import analytical_run
 from analitycal_class import AnalitycalCalc
 
 
@@ -13,6 +13,7 @@ class Ui_MainWindow(QWidget):
         MainWindow.resize(602, 700)
         MainWindow.setFixedSize(602, 700)
         MainWindow.setStyleSheet("background-color: rgb(40, 40, 40);")
+        MainWindow.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'image', 'IV_logo.png')))
 
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
