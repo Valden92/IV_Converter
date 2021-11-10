@@ -8,12 +8,10 @@ from analitycal_class import AnalitycalCalc
 
 class Ui_MainWindow(QWidget):
 
-    def __init__(self):
-        super().__init__()
-
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(602, 700)
+        MainWindow.setFixedSize(602, 700)
         MainWindow.setStyleSheet("background-color: rgb(40, 40, 40);")
 
         self.centralwidget = QWidget(MainWindow)
