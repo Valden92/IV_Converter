@@ -37,6 +37,9 @@ class AnalitycalCalc:
 
         # Прочие настройки
         self.file_format = '.png'
+        self.x_label = 'U, В'
+        self.y_label = 'I, А'
+        self.title = 'Зависимость Тока от Напряжения'
 
     def __read_file(self):
         try:
@@ -184,10 +187,9 @@ class AnalitycalCalc:
         axs.set_yscale('log')
         axs.minorticks_on()
         axs.grid(True)
-        plt.xlabel('Ось X')
-        plt.ylabel('Ось Y')
-        plt.title('Название графика')
-        plt.text(0, 7, "TEXT")
+        plt.xlabel(self.x_label)
+        plt.ylabel(self.y_label)
+        plt.title(self.title)
 
         return axs
 
