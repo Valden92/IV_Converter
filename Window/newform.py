@@ -46,6 +46,14 @@ class Ui_MainWindow(QWidget):
         self.horizontalLayout_path_out = QtWidgets.QHBoxLayout(self.widget_path_out)
         self.save_label = QtWidgets.QLineEdit(self.widget_path_out)
 
+        # Названия готовых файлов
+        self.widget_filename = QtWidgets.QWidget(self.centralwidget)
+        self.horizontalLayout_filename = QtWidgets.QHBoxLayout(self.widget_filename)
+        self.output_filename = QtWidgets.QLineEdit(self.widget_filename)
+
+        # Кнопка начала процесса обработки
+        self.startButton = QtWidgets.QPushButton(self.centralwidget)
+
         # Статусбар
         self.statusbar = QtWidgets.QStatusBar(self.MainWindow)
 
@@ -75,12 +83,15 @@ class Ui_MainWindow(QWidget):
                               "Указать папку для сохранения данных:",
                               pointsize=12)
         self.widget_path_out = self.createPath_to_save_widget()
+        self.widget_filename = self.createFilename_widget()
+
         self.createLine(0, 500, self.length_window, 3)
+
+        self.startButton = self.createStart_button()
 
         self.MainWindow.setCentralWidget(self.centralwidget)
 
         self.MainWindow.setStatusBar(self.createStatusbar())
-
 
     def createMenu(self):
         """Настройки Меню.
@@ -103,7 +114,7 @@ class Ui_MainWindow(QWidget):
 
         # Кнопка "Инструкция"
         self.instruction.setText("Инструкция")
-        self.instruction.setObjectName("instraction")
+        self.instruction.setObjectName("instruction")
 
         # Кнопка "О программе"
         self.about.setText("О программе")
@@ -291,6 +302,53 @@ class Ui_MainWindow(QWidget):
 
         return self.widget_path_out
 
+    def createFilename_widget(self):
+        """Создает окно ввода имен готовых файлов.
+        """
+        self.widget_filename.setGeometry(QtCore.QRect(40, 450, 523, 32))
+        self.widget_filename.setObjectName("widget_filename")
+
+        self.horizontalLayout_filename.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_filename.setObjectName("horizontalLayout_filename")
+
+        label_text = self.createLabel_text(self.widget_filename, 0, 0, 0, 0,
+                                           "Название готовых файлов:",
+                                           pointsize=12)
+        self.horizontalLayout_filename.addWidget(label_text)
+
+        spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Minimum,
+                                           QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_filename.addItem(spacerItem)
+
+        self.output_filename.setMinimumSize(QtCore.QSize(300, 30))
+        self.output_filename.setText('')
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.output_filename.setFont(font)
+        self.output_filename.setStyleSheet("background-color: rgb(60, 63, 65);\n"
+                                           "color: rgb(225, 225, 225);")
+        self.output_filename.setInputMask("  Введите название...")
+        self.output_filename.setObjectName("output_filename")
+        self.horizontalLayout_filename.addWidget(self.output_filename)
+
+        return self.widget_filename
+
+    def createStart_button(self):
+        """Создает кнопку для начала обработки файла.
+        """
+        self.startButton.setGeometry(QtCore.QRect(40, 540, 101, 91))
+        self.startButton.setText('START')
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        font.setWeight(75)
+        self.startButton.setFont(font)
+        self.startButton.setStyleSheet("background-color: rgb(73, 156, 84);")
+        self.startButton.setObjectName("startButton")
+        self.startButton.clicked.connect(self.start_analytical_part)
+
+        return self.startButton
+
     def createStatusbar(self):
         """Настройки статусбара.
         """
@@ -357,7 +415,7 @@ class Ui_MainWindow(QWidget):
 
         yesButton = reply.addButton("Выйти", reply.ButtonRole.ActionRole)
         yesButton.setStyleSheet("background-color: #F4C430;\n"
-                               "color: black;")
+                                "color: black;")
 
         noButton = reply.addButton("Остаться", reply.ButtonRole.NoRole)
         noButton.setStyleSheet("background-color: #F4C430;\n"
@@ -383,6 +441,25 @@ class Ui_MainWindow(QWidget):
 
         if path_to_dir:
             self.save_label.setText(path_to_dir)
+
+    def start_analytical_part(self):
+        """Начинает парсинг и расчет документа.
+        """
+        if float(self.diameter.text()) <= 0:
+            print('Не указан диаметр контакта.')
+
+        if '.csv' not in self.path_label.text():
+            print('Файл не выбран или выбран не верно.')
+
+        calc_obj = AnalitycalCalc(
+            self.path_label.text(),
+            self.diameter.text(),
+            self.check_separate_graph.isChecked(),
+            self.check_inverse_graph.isChecked(),
+            self.save_label.text(),
+            self.output_filename.text()
+        )
+        calc_obj.run_program()
 
 
 if __name__ == "__main__":
