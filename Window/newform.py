@@ -25,22 +25,29 @@ class Ui_MainWindow(QWidget):
         self.about = QtGui.QAction(self.MainWindow)
         self.exit = QtGui.QAction(self.MainWindow)
 
-        # Настройки окна ввода диаметра
+        # Ввод диаметра
         self.widget_diameter = QtWidgets.QWidget(self.centralwidget)
         self.horizontalLayout_diameter = QtWidgets.QHBoxLayout(self.widget_diameter)
-        self.label_diameter_text_1 = QtWidgets.QLabel(self.widget_diameter)
         self.diameter = QtWidgets.QLineEdit(self.widget_diameter)
-        self.label_diameter_text_2 = QtWidgets.QLabel(self.widget_diameter)
 
-        # Настройки чекбоксов
+        # Чекбоксы
         self.widget_checkbox = QtWidgets.QWidget(self.centralwidget)
         self.verticalLayout = QtWidgets.QVBoxLayout(self.widget_checkbox)
         self.check_separate_graph = QtWidgets.QCheckBox(self.widget_checkbox)
         self.check_inverse_graph = QtWidgets.QCheckBox(self.widget_checkbox)
 
+        # Путь к файлу
+        self.widget_path_to = QtWidgets.QWidget(self.centralwidget)
+        self.horizontalLayout_path_to = QtWidgets.QHBoxLayout(self.widget_path_to)
+        self.path_label = QtWidgets.QLineEdit(self.widget_path_to)
+
+        # Путь сохранения
+        self.widget_path_out = QtWidgets.QWidget(self.centralwidget)
+        self.horizontalLayout_path_out = QtWidgets.QHBoxLayout(self.widget_path_out)
+        self.save_label = QtWidgets.QLineEdit(self.widget_path_out)
+
         # Статусбар
         self.statusbar = QtWidgets.QStatusBar(self.MainWindow)
-
 
     def setupUi(self):
         """Основные настройки.
@@ -51,24 +58,29 @@ class Ui_MainWindow(QWidget):
         self.MainWindow.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'image', 'IV_logo.png')))
         self.MainWindow.setWindowTitle("IV Converter")
         self.MainWindow.setMenuBar(self.createMenu())
-        self.createLabel_text(40, 20, 451, 21,
+
+        self.createLabel_text(self.centralwidget, 40, 20, 451, 21,
                               "Основные настройки расчета и построения графиков",
                               bold=True, pointsize=12, weight=75)
         self.widget_diameter = self.createDiameter_widget()
         self.widget_checkbox = self.createCheckbox_widgets()
+
         self.createLine(0, 230, self.length_window, 3)
-        self.createLabel_text(40, 260, 121, 21,
+
+        self.createLabel_text(self.centralwidget, 40, 260, 121, 21,
                               "Открыть файл:",
                               pointsize=12)
+        self.widget_path_to = self.createPath_to_file_widget()
+        self.createLabel_text(self.centralwidget, 40, 360, 301, 21,
+                              "Указать папку для сохранения данных:",
+                              pointsize=12)
+        self.widget_path_out = self.createPath_to_save_widget()
         self.createLine(0, 500, self.length_window, 3)
 
-        self.MainWindow.setCentralWidget(self.createCentral_widget())
+        self.MainWindow.setCentralWidget(self.centralwidget)
 
         self.MainWindow.setStatusBar(self.createStatusbar())
 
-    def createCentral_widget(self):
-        self.centralwidget.setObjectName("centralwidget")
-        return self.centralwidget
 
     def createMenu(self):
         """Настройки Меню.
@@ -111,42 +123,22 @@ class Ui_MainWindow(QWidget):
 
         return self.menubar
 
-    def createLabel_text(self, x, y, length, height, text, bold=False, pointsize=None, weight=None):
-        """Надпись, указывающая на основные настройки расчета.
-        """
-        label_text = QtWidgets.QLabel(self.centralwidget)
-        label_text.setGeometry(QtCore.QRect(x, y, length, height))
-        label_text.setText(text)
-        font = QtGui.QFont()
-        if pointsize:
-            font.setPointSize(pointsize)
-        font.setBold(bold)
-        if weight:
-            font.setWeight(weight)
-        label_text.setFont(font)
-        label_text.setStyleSheet("color: rgb(225, 225, 225);")
-
-        return label_text
-
     def createDiameter_widget(self):
         """Создает окно ввода диаметра контакта.
         """
         self.widget_diameter.setGeometry(QtCore.QRect(40, 60, 271, 41))
-        self.widget_diameter.setObjectName("widget")
+        self.widget_diameter.setObjectName("widget_diameter")
 
         self.horizontalLayout_diameter.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_diameter.setObjectName("horizontalLayout_diameter")
 
-        self.label_diameter_text_1.setText("Диаметр контакта:")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        self.label_diameter_text_1.setFont(font)
-        self.label_diameter_text_1.setStyleSheet("color: rgb(225, 225, 225);")
-        self.label_diameter_text_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading |
-                                                QtCore.Qt.AlignmentFlag.AlignLeft |
-                                                QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_diameter_text_1.setObjectName("label_diameter_text_1")
-        self.horizontalLayout_diameter.addWidget(self.label_diameter_text_1)
+        label_diameter_text_1 = self.createLabel_text(self.widget_diameter, 0, 0, 0, 0,
+                                                      "Диаметр контакта:",
+                                                      pointsize=12)
+        label_diameter_text_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading |
+                                           QtCore.Qt.AlignmentFlag.AlignLeft |
+                                           QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.horizontalLayout_diameter.addWidget(label_diameter_text_1)
 
         self.diameter.setInputMask("0.0000")
         self.diameter.setText("0.0000")
@@ -158,16 +150,13 @@ class Ui_MainWindow(QWidget):
         self.diameter.setObjectName("diameter")
         self.horizontalLayout_diameter.addWidget(self.diameter)
 
-        self.label_diameter_text_2.setText("мкм")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        self.label_diameter_text_2.setFont(font)
-        self.label_diameter_text_2.setStyleSheet("color: rgb(225, 225, 225);")
-        self.label_diameter_text_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading |
-                                                QtCore.Qt.AlignmentFlag.AlignLeft |
-                                                QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_diameter_text_2.setObjectName("label_diameter_text_2")
-        self.horizontalLayout_diameter.addWidget(self.label_diameter_text_2)
+        label_diameter_text_2 = self.createLabel_text(self.widget_diameter, 0, 0, 0, 0,
+                                                      "мкм",
+                                                      pointsize=12)
+        label_diameter_text_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading |
+                                           QtCore.Qt.AlignmentFlag.AlignLeft |
+                                           QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.horizontalLayout_diameter.addWidget(label_diameter_text_2)
 
         return self.widget_diameter
 
@@ -216,15 +205,91 @@ class Ui_MainWindow(QWidget):
 
         return self.check_inverse_graph
 
-    def createLine(self, x, y, length, height):
-        """Строит линию-разделитель в окне по передаваемым параметрам.
+    def createPath_to_file_widget(self):
+        """Создает окно для указания пути к файлу.
         """
-        line = QtWidgets.QFrame(self.centralwidget)
-        line.setGeometry(QtCore.QRect(x, y, length, height))
-        line.setFrameShape(QtWidgets.QFrame.Shape.HLine)
-        line.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+        self.widget_path_to.setGeometry(QtCore.QRect(40, 290, 411, 36))
+        self.widget_path_to.setObjectName("widget_path_to")
 
-        return line
+        self.horizontalLayout_path_to.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetNoConstraint)
+        self.horizontalLayout_path_to.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_path_to.setSpacing(10)
+        self.horizontalLayout_path_to.setObjectName("horizontalLayout_path_to")
+
+        ButtonPath = QtWidgets.QToolButton(self.widget_path_to)
+        ButtonPath.setEnabled(True)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(ButtonPath.sizePolicy().hasHeightForWidth())
+        ButtonPath.setSizePolicy(sizePolicy)
+        ButtonPath.setMinimumSize(QtCore.QSize(30, 30))
+        ButtonPath.setText('...')
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        ButtonPath.setFont(font)
+        ButtonPath.setStyleSheet("background-color: #F4C430;\n"
+                                 "selection-background-color: rgb(60, 63, 65);\n"
+                                 "color: rgb(0, 0, 0);")
+        self.horizontalLayout_path_to.addWidget(ButtonPath)
+        ButtonPath.clicked.connect(self.path_to_open)
+
+        self.path_label.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.path_label.setText('  Файл...')
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.path_label.setFont(font)
+        self.path_label.setStyleSheet("background-color: rgb(60, 63, 65);\n"
+                                      "color: rgb(225, 225, 225);")
+        self.path_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify |
+                                     QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.path_label.setObjectName("path_label")
+        self.horizontalLayout_path_to.addWidget(self.path_label)
+
+        return self.widget_path_to
+
+    def createPath_to_save_widget(self):
+        """Строит окно для указания пути сохранения готовых результатов.
+        """
+        self.widget_path_out.setGeometry(QtCore.QRect(40, 390, 411, 36))
+        self.widget_path_out.setObjectName("widget_path_out")
+
+        self.horizontalLayout_path_out.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetNoConstraint)
+        self.horizontalLayout_path_out.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_path_out.setSpacing(10)
+        self.horizontalLayout_path_out.setObjectName("horizontalLayout_path_out")
+
+        ButtonSave = QtWidgets.QToolButton(self.widget_path_out)
+        ButtonSave.setEnabled(True)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(ButtonSave.sizePolicy().hasHeightForWidth())
+        ButtonSave.setSizePolicy(sizePolicy)
+        ButtonSave.setMinimumSize(QtCore.QSize(30, 30))
+        ButtonSave.setText('...')
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        ButtonSave.setFont(font)
+        ButtonSave.setStyleSheet("background-color: #F4C430;\n"
+                                 "selection-background-color: rgb(60, 63, 65);\n"
+                                 "color: rgb(0, 0, 0);")
+        self.horizontalLayout_path_out.addWidget(ButtonSave)
+        ButtonSave.clicked.connect(self.path_to_save)
+
+        self.save_label.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.save_label.setText('  Путь сохранения данных')
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.save_label.setFont(font)
+        self.save_label.setStyleSheet("background-color: rgb(60, 63, 65);\n"
+                                      "color: rgb(225, 225, 225);")
+        self.save_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify |
+                                     QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.save_label.setObjectName("save_label")
+        self.horizontalLayout_path_out.addWidget(self.save_label)
+
+        return self.widget_path_out
 
     def createStatusbar(self):
         """Настройки статусбара.
@@ -241,6 +306,36 @@ class Ui_MainWindow(QWidget):
         self.statusbar.addPermanentWidget(my_message)
 
         return self.statusbar
+
+    # Методы построения различных общих элементов.
+
+    @staticmethod
+    def createLabel_text(some_widget, x, y, length, height, text, bold=False, pointsize=None, weight=None):
+        """Генерирует статичную надпись.
+        """
+        label_text = QtWidgets.QLabel(some_widget)
+        label_text.setGeometry(QtCore.QRect(x, y, length, height))
+        label_text.setText(text)
+        font = QtGui.QFont()
+        if pointsize:
+            font.setPointSize(pointsize)
+        font.setBold(bold)
+        if weight:
+            font.setWeight(weight)
+        label_text.setFont(font)
+        label_text.setStyleSheet("color: rgb(225, 225, 225);")
+
+        return label_text
+
+    def createLine(self, x, y, length, height):
+        """Строит линию-разделитель.
+        """
+        line = QtWidgets.QFrame(self.centralwidget)
+        line.setGeometry(QtCore.QRect(x, y, length, height))
+        line.setFrameShape(QtWidgets.QFrame.Shape.HLine)
+        line.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+
+        return line
 
     # Прочие методы, инициализирующие внутреннюю работу программы.
 
@@ -272,6 +367,22 @@ class Ui_MainWindow(QWidget):
 
         if reply.clickedButton() == yesButton:
             app.exit()
+
+    def path_to_open(self):
+        """Считывает путь к указанному файлу для его открытия.
+        """
+        path_to_file = QtWidgets.QFileDialog.getOpenFileName(filter='*.csv')[0]
+
+        if path_to_file:
+            self.path_label.setText(path_to_file)
+
+    def path_to_save(self):
+        """Считывает путь к указанной директории для сохранения конечных результатов.
+        """
+        path_to_dir = QtWidgets.QFileDialog.getExistingDirectory()
+
+        if path_to_dir:
+            self.save_label.setText(path_to_dir)
 
 
 if __name__ == "__main__":
