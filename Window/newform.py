@@ -58,7 +58,7 @@ class Ui_MainWindow(QWidget):
 
         # Логгинизация процессов
         self.logging = QtWidgets.QScrollArea(self.centralwidget)
-        self.logging_text = '>>> Программа запущена. Добро пожаловать!'
+        self.logging_text = '> Программа запущена. Добро пожаловать!'
         self.log_text_widget = QtWidgets.QLabel(self.logging_text, parent=self.logging)
 
         # Статусбар
@@ -95,7 +95,7 @@ class Ui_MainWindow(QWidget):
         self.createLine(0, 500, self.length_window, 3)
 
         self.startButton = self.createStart_button()
-        self.logging = self.createLogging_area()
+        self.logging = self.createLog_area()
         self.createLabel_text(self.centralwidget, 180, 510, 383, 20,
                               "  Результаты:",
                               background="background-color: rgb(51, 72, 83);")
@@ -357,17 +357,18 @@ class Ui_MainWindow(QWidget):
         self.startButton.setGeometry(QtCore.QRect(40, 540, 101, 91))
         self.startButton.setText('START')
         font = QtGui.QFont()
-        font.setPointSize(14)
+        font.setPointSize(15)
         font.setBold(True)
-        font.setWeight(75)
         self.startButton.setFont(font)
-        self.startButton.setStyleSheet("background-color: rgb(73, 156, 84);")
+        self.startButton.setStyleSheet("background-color: rgb(73, 156, 84);\n"
+                                       "color: rgb(40, 40, 40);")
         self.startButton.setObjectName("startButton")
+
         self.startButton.clicked.connect(self.start_analytical_part)
 
         return self.startButton
 
-    def createLogging_area(self):
+    def createLog_area(self):
         """Создает окно с логами.
         """
         self.logging.setGeometry(QtCore.QRect(180, 530, 383, 111))
@@ -435,6 +436,13 @@ class Ui_MainWindow(QWidget):
 
         return line
 
+    def setLog_text(self):
+        """Пересоздает окно логов, обновляя текст.
+        """
+        self.log_text_widget = QtWidgets.QLabel(self.logging_text, parent=self.logging)
+        self.logging = self.createLog_area()
+
+
     # Прочие методы, инициализирующие внутреннюю работу программы.
 
     def show_window(self):
@@ -482,18 +490,29 @@ class Ui_MainWindow(QWidget):
         if path_to_dir:
             self.save_label.setText(path_to_dir)
 
+    def data_validation(self):
+        """Проверка ввода необходимых данных.
+        """
+        if float(self.diameter.text()) > 0:
+            self.is_diameter = True
+
+        if '.csv' in self.path_label.text():
+            self.is_path_to = True
+
     def start_analytical_part(self):
         """Начинает парсинг и расчет документа.
         """
+        self.data_validation()
+
         if not self.is_diameter:
             text = self.logging_text
-            self.logging_text = text + '\n' + '>>> Не указан диаметр контакта.'
-            self.log_text_widget.setText(self.logging_text)
+            self.logging_text = text + '\n' + '> Не указан диаметр контакта.'
 
-        if '.csv' not in self.path_label.text():
+        if not self.is_path_to:
             text = self.logging_text
-            self.logging_text = text + '\n' + '>>> Файл не выбран или выбран не верно.'
-            self.log_text_widget.setText(self.logging_text)
+            self.logging_text = text + '\n' + '> Файл не выбран или выбран не верно.'
+
+        self.setLog_text()
 
         if self.is_diameter and self.is_path_to:
             calc_obj = AnalitycalCalc(
@@ -505,7 +524,6 @@ class Ui_MainWindow(QWidget):
                 self.output_filename.text()
             )
             calc_obj.run_program()
-
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
