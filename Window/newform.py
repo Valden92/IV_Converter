@@ -59,7 +59,6 @@ class Ui_MainWindow(QWidget):
         # Логгинизация процессов
         self.logging = QtWidgets.QScrollArea(self.centralwidget)
         self.logging_text = '> Программа запущена. Добро пожаловать!'
-        self.log_text_widget = QtWidgets.QLabel(self.logging_text, parent=self.logging)
 
         # Статусбар
         self.statusbar = QtWidgets.QStatusBar(self.MainWindow)
@@ -339,13 +338,12 @@ class Ui_MainWindow(QWidget):
         self.horizontalLayout_filename.addItem(spacerItem)
 
         self.output_filename.setMinimumSize(QtCore.QSize(300, 30))
-        self.output_filename.setText('')
+        self.output_filename.setText("  Введите название...")
         font = QtGui.QFont()
         font.setPointSize(10)
         self.output_filename.setFont(font)
         self.output_filename.setStyleSheet("background-color: rgb(60, 63, 65);\n"
                                            "color: rgb(225, 225, 225);")
-        self.output_filename.setInputMask("  Введите название...")
         self.output_filename.setObjectName("output_filename")
         self.horizontalLayout_filename.addWidget(self.output_filename)
 
@@ -377,12 +375,13 @@ class Ui_MainWindow(QWidget):
         self.logging.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft |
                                   QtCore.Qt.AlignmentFlag.AlignBottom)
 
-        self.log_text_widget.setMargin(5)
-        self.log_text_widget.setWordWrap(False)
-        self.log_text_widget.setTextFormat(QtCore.Qt.TextFormat.AutoText)
-        self.log_text_widget.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
+        log_text_widget = QtWidgets.QLabel(self.logging_text, parent=self.logging)
+        log_text_widget.setMargin(5)
+        log_text_widget.setWordWrap(False)
+        log_text_widget.setTextFormat(QtCore.Qt.TextFormat.AutoText)
+        log_text_widget.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
 
-        self.logging.setWidget(self.log_text_widget)
+        self.logging.setWidget(log_text_widget)
 
         return self.logging
 
@@ -435,12 +434,6 @@ class Ui_MainWindow(QWidget):
         line.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
 
         return line
-
-    def setLog_text(self):
-        """Пересоздает окно логов, обновляя текст.
-        """
-        self.log_text_widget = QtWidgets.QLabel(self.logging_text, parent=self.logging)
-        self.logging = self.createLog_area()
 
 
     # Прочие методы, инициализирующие внутреннюю работу программы.
@@ -499,11 +492,6 @@ class Ui_MainWindow(QWidget):
         if '.csv' in self.path_label.text():
             self.is_path_to = True
 
-    def start_analytical_part(self):
-        """Начинает парсинг и расчет документа.
-        """
-        self.data_validation()
-
         if not self.is_diameter:
             text = self.logging_text
             self.logging_text = text + '\n' + '> Не указан диаметр контакта.'
@@ -512,7 +500,12 @@ class Ui_MainWindow(QWidget):
             text = self.logging_text
             self.logging_text = text + '\n' + '> Файл не выбран или выбран не верно.'
 
-        self.setLog_text()
+        self.logging = self.createLog_area()
+
+    def start_analytical_part(self):
+        """Начинает парсинг и расчет документа.
+        """
+        self.data_validation()
 
         if self.is_diameter and self.is_path_to:
             calc_obj = AnalitycalCalc(
@@ -523,7 +516,18 @@ class Ui_MainWindow(QWidget):
                 self.save_label.text(),
                 self.output_filename.text()
             )
-            calc_obj.run_program()
+            try:
+                calc_obj.run_program()
+            except FileNotFoundError:
+                text = self.logging_text
+                self.logging_text = text + '\n' + '> Файл не найден!'
+                self.logging = self.createLog_area()
+            else:
+                print(calc_obj.b)
+                print(calc_obj.fi)
+                text = self.logging_text
+                self.logging_text = text + '\n' + '> Конвертирование завершено удачно.\n> Графики построены.'
+                self.logging = self.createLog_area()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
