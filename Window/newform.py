@@ -29,6 +29,7 @@ class Ui_MainWindow(QWidget):
         self.widget_diameter = QtWidgets.QWidget(self.centralwidget)
         self.horizontalLayout_diameter = QtWidgets.QHBoxLayout(self.widget_diameter)
         self.diameter = QtWidgets.QLineEdit(self.widget_diameter)
+        self.is_diameter = False
 
         # Чекбоксы
         self.widget_checkbox = QtWidgets.QWidget(self.centralwidget)
@@ -40,6 +41,7 @@ class Ui_MainWindow(QWidget):
         self.widget_path_to = QtWidgets.QWidget(self.centralwidget)
         self.horizontalLayout_path_to = QtWidgets.QHBoxLayout(self.widget_path_to)
         self.path_label = QtWidgets.QLineEdit(self.widget_path_to)
+        self.is_path_to = False
 
         # Путь сохранения
         self.widget_path_out = QtWidgets.QWidget(self.centralwidget)
@@ -53,6 +55,11 @@ class Ui_MainWindow(QWidget):
 
         # Кнопка начала процесса обработки
         self.startButton = QtWidgets.QPushButton(self.centralwidget)
+
+        # Логгинизация процессов
+        self.logging = QtWidgets.QScrollArea(self.centralwidget)
+        self.logging_text = '>>> Программа запущена. Добро пожаловать!'
+        self.log_text_widget = QtWidgets.QLabel(self.logging_text, parent=self.logging)
 
         # Статусбар
         self.statusbar = QtWidgets.QStatusBar(self.MainWindow)
@@ -88,6 +95,10 @@ class Ui_MainWindow(QWidget):
         self.createLine(0, 500, self.length_window, 3)
 
         self.startButton = self.createStart_button()
+        self.logging = self.createLogging_area()
+        self.createLabel_text(self.centralwidget, 180, 510, 383, 20,
+                              "  Результаты:",
+                              background="background-color: rgb(51, 72, 83);")
 
         self.MainWindow.setCentralWidget(self.centralwidget)
 
@@ -153,6 +164,8 @@ class Ui_MainWindow(QWidget):
 
         self.diameter.setInputMask("0.0000")
         self.diameter.setText("0.0000")
+        self.diameter.setWhatsThis("Введите диаметр контакта, на котором проводилось измерение (в микрометрах). "
+                                   "Обязательный параметр!")
         font = QtGui.QFont()
         font.setPointSize(11)
         self.diameter.setFont(font)
@@ -200,6 +213,9 @@ class Ui_MainWindow(QWidget):
         self.check_separate_graph.setFont(font)
         self.check_separate_graph.setStyleSheet("color: rgb(225, 225, 225);")
         self.check_separate_graph.setObjectName("check_separate_graph")
+        self.check_separate_graph.setWhatsThis('Поставте галочку, если желаете, чтобы графики не объединялись '
+                                               'на одной оси координат. Граифики будут построены по отдельности, '
+                                               'в соответсвии с предоставленными данными.')
 
         return self.check_separate_graph
 
@@ -213,6 +229,8 @@ class Ui_MainWindow(QWidget):
         self.check_inverse_graph.setFont(font)
         self.check_inverse_graph.setStyleSheet("color: rgb(225, 225, 225);")
         self.check_inverse_graph.setObjectName("check_inverse_graph")
+        self.check_inverse_graph.setWhatsThis('Поставте галочку, если желаете, чтобы были обработаны данные для '
+                                              'обратных смещений.')
 
         return self.check_inverse_graph
 
@@ -349,6 +367,24 @@ class Ui_MainWindow(QWidget):
 
         return self.startButton
 
+    def createLogging_area(self):
+        """Создает окно с логами.
+        """
+        self.logging.setGeometry(QtCore.QRect(180, 530, 383, 111))
+        self.logging.setStyleSheet("background-color: rgb(60, 63, 65);\n"
+                                   "color: rgb(200, 200, 200);")
+        self.logging.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft |
+                                  QtCore.Qt.AlignmentFlag.AlignBottom)
+
+        self.log_text_widget.setMargin(5)
+        self.log_text_widget.setWordWrap(False)
+        self.log_text_widget.setTextFormat(QtCore.Qt.TextFormat.AutoText)
+        self.log_text_widget.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
+
+        self.logging.setWidget(self.log_text_widget)
+
+        return self.logging
+
     def createStatusbar(self):
         """Настройки статусбара.
         """
@@ -368,7 +404,8 @@ class Ui_MainWindow(QWidget):
     # Методы построения различных общих элементов.
 
     @staticmethod
-    def createLabel_text(some_widget, x, y, length, height, text, bold=False, pointsize=None, weight=None):
+    def createLabel_text(some_widget, x, y, length, height, text, bold=False, pointsize=None, weight=None,
+                         background=None):
         """Генерирует статичную надпись.
         """
         label_text = QtWidgets.QLabel(some_widget)
@@ -381,7 +418,10 @@ class Ui_MainWindow(QWidget):
         if weight:
             font.setWeight(weight)
         label_text.setFont(font)
-        label_text.setStyleSheet("color: rgb(225, 225, 225);")
+        if background:
+            label_text.setStyleSheet("color: rgb(225, 225, 225);\n" + background)
+        else:
+            label_text.setStyleSheet("color: rgb(225, 225, 225);\n")
 
         return label_text
 
@@ -445,21 +485,26 @@ class Ui_MainWindow(QWidget):
     def start_analytical_part(self):
         """Начинает парсинг и расчет документа.
         """
-        if float(self.diameter.text()) <= 0:
-            print('Не указан диаметр контакта.')
+        if not self.is_diameter:
+            text = self.logging_text
+            self.logging_text = text + '\n' + '>>> Не указан диаметр контакта.'
+            self.log_text_widget.setText(self.logging_text)
 
         if '.csv' not in self.path_label.text():
-            print('Файл не выбран или выбран не верно.')
+            text = self.logging_text
+            self.logging_text = text + '\n' + '>>> Файл не выбран или выбран не верно.'
+            self.log_text_widget.setText(self.logging_text)
 
-        calc_obj = AnalitycalCalc(
-            self.path_label.text(),
-            self.diameter.text(),
-            self.check_separate_graph.isChecked(),
-            self.check_inverse_graph.isChecked(),
-            self.save_label.text(),
-            self.output_filename.text()
-        )
-        calc_obj.run_program()
+        if self.is_diameter and self.is_path_to:
+            calc_obj = AnalitycalCalc(
+                self.path_label.text(),
+                self.diameter.text(),
+                self.check_separate_graph.isChecked(),
+                self.check_inverse_graph.isChecked(),
+                self.save_label.text(),
+                self.output_filename.text()
+            )
+            calc_obj.run_program()
 
 
 if __name__ == "__main__":
