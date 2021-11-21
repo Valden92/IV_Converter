@@ -58,7 +58,7 @@ class Ui_MainWindow(QWidget):
 
         # Логгинизация процессов
         self.logging = QtWidgets.QScrollArea(self.centralwidget)
-        self.logging_text = '> Программа запущена. Добро пожаловать!'
+        self.logging_text = '> Программа запущена. Удачных расчетов!'
 
         # Статусбар
         self.statusbar = QtWidgets.QStatusBar(self.MainWindow)
@@ -502,6 +502,16 @@ class Ui_MainWindow(QWidget):
 
         self.logging = self.createLog_area()
 
+    def visual_result(self, calc_obj):
+        """Выводит результаты расчетов в Лог.
+        """
+        for i in range(len(calc_obj.b.keys())):
+            self.logging_text = self.logging_text + '\n' + '> {}) Fi= {}, B= {}'.format(str(i+1),
+                                                                                        str(calc_obj.b[i]),
+                                                                                        str(calc_obj.fi[i]))
+        self.logging_text = self.logging_text + '\n' + '> Конвертирование завершено удачно.\n> Графики построены.\n'
+        self.logging = self.createLog_area()
+
     def start_analytical_part(self):
         """Начинает парсинг и расчет документа.
         """
@@ -523,11 +533,7 @@ class Ui_MainWindow(QWidget):
                 self.logging_text = text + '\n' + '> Файл не найден!'
                 self.logging = self.createLog_area()
             else:
-                print(calc_obj.b)
-                print(calc_obj.fi)
-                text = self.logging_text
-                self.logging_text = text + '\n' + '> Конвертирование завершено удачно.\n> Графики построены.'
-                self.logging = self.createLog_area()
+                self.visual_result(calc_obj)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

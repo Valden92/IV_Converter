@@ -42,6 +42,8 @@ class AnalitycalCalc:
         self.title = 'Зависимость Тока от Напряжения'
 
     def __read_file(self):
+        """Чтение CSV документа и парсинг данных.
+        """
         try:
             with open(self.path_to_file, 'r') as file:
                 reader = csv.reader(file, delimiter=',')
@@ -119,8 +121,10 @@ class AnalitycalCalc:
         return new_x, new_y
 
     def __generate_filename(self, incomplete_name, graph_direction):
-        if self.filename == '  File Name...':
-            self.filename = 'VACh'
+        """Генеирирует конечное имя файлов и путь для их дальнейшего сохранения.
+        """
+        if self.filename == '  Введите название...':
+            self.filename = 'ВАХ'
 
         if os.path.isdir(self.path_to_save):
             new_dir = os.path.join(self.path_to_save, graph_direction)
@@ -153,7 +157,9 @@ class AnalitycalCalc:
                 c = list(map(abs, current[i]))
                 v = voltage[i][:len(current[i])]
 
-                plt.plot(v, c)
+                plt.plot(v, c, label='Fi= {}\nb= {}'.format(str(self.fi[i]), str(self.b[i])))
+                if graph_direction == 'direct':
+                    plt.legend()
                 if max(v) < 0:
                     axs.set_xlim([min(v), 0])
                 else:
@@ -168,12 +174,14 @@ class AnalitycalCalc:
                 c = list(map(abs, current[i]))
                 v = voltage[i][:len(current[i])]
 
-                plt.plot(v, c)
+                plt.plot(v, c, label='Fi= {}\nb= {}'.format(str(self.fi[i]), str(self.b[i])))
                 if max(v) < 0:
                     axs.set_xlim([min(v), 0])
                 else:
                     axs.set_xlim([0, max(v)])
 
+            if graph_direction == 'direct':
+                plt.legend()
             saving_path = self.__generate_filename(graph_direction, graph_direction)
             plt.savefig(saving_path)
 
