@@ -63,6 +63,10 @@ class AnalitycalCalc:
                         if self.is_inverse:
                             reverse_current.append(line[3])
                             reverse_voltage.append(line[4])
+
+                if not direct_current or not direct_voltage:
+                    raise UnicodeError
+
         except FileNotFoundError:
             raise FileNotFoundError('Файл не найден!')
         else:
@@ -157,7 +161,10 @@ class AnalitycalCalc:
                 c = list(map(abs, current[i]))
                 v = voltage[i][:len(current[i])]
 
-                plt.plot(v, c, label='Fi= {}\nb= {}'.format(str(self.fi[i]), str(self.b[i])))
+                plt.plot(v, c, label=('\nВысота барьера= {} эВ'
+                                      '\nТок насыщения= {} А'.format(self.special_rounder(self.fi[i]),
+                                                                     self.special_rounder(self.b[i]))
+                                      ))
                 if graph_direction == 'direct':
                     plt.legend()
                 if max(v) < 0:
@@ -174,7 +181,10 @@ class AnalitycalCalc:
                 c = list(map(abs, current[i]))
                 v = voltage[i][:len(current[i])]
 
-                plt.plot(v, c, label='Fi= {}\nb= {}'.format(str(self.fi[i]), str(self.b[i])))
+                plt.plot(v, c, label=('\nВысота барьера= {} эВ'
+                                      '\nТок насыщения= {} А'.format(self.special_rounder(self.fi[i]),
+                                                                     self.special_rounder(self.b[i]))
+                                      ))
                 if max(v) < 0:
                     axs.set_xlim([min(v), 0])
                 else:
@@ -200,6 +210,17 @@ class AnalitycalCalc:
         plt.title(self.title)
 
         return axs
+
+    @staticmethod
+    def special_rounder(number):
+        """Округляет длинные числа для читабельного вывода.
+        """
+        if 'e' in str(number):
+            num = str(number).split('e')
+            round_num = str(round(float(num[0]), 3))
+            return round_num + 'E' + num[1]
+
+        return str(round(number, 3))
 
     def print_coefficient(self):
         if self.b:
