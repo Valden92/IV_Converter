@@ -125,10 +125,12 @@ class Ui_MainWindow(QWidget):
         # Кнопка "Инструкция"
         self.instruction.setText("Инструкция")
         self.instruction.setObjectName("instruction")
+        self.instruction.triggered.connect(self.show_instructions)
 
         # Кнопка "О программе"
         self.about.setText("О программе")
         self.about.setObjectName("about")
+        self.about.triggered.connect(self.show_about)
 
         # Кнопка "Выход"
         self.exit.setText("Выход")
@@ -476,6 +478,38 @@ class Ui_MainWindow(QWidget):
 
         if reply.clickedButton() == yesButton:
             app.exit()
+
+    def show_instructions(self):
+        """Выводит окно с инструкциями.
+        """
+        instructions = QtWidgets.QMessageBox(self.centralwidget)
+        instructions.resize(self.length_window, self.height_window)
+        instructions.setWindowTitle('Инструкция по работе с программой')
+        instructions.setText("""
+        """)
+        instructions.setStyleSheet("color: rgb(200, 200, 200);\n"
+                                   "background-color: rgb(60, 63, 65);")
+
+        close_btn = instructions.addButton('Закрыть', instructions.ButtonRole.NoRole)
+        close_btn.setStyleSheet("background-color: #F4C430;\n"
+                                "color: black;")
+        instructions.exec()
+
+    def show_about(self):
+        """Выводит окно с общим описанием программы.
+        """
+        about = QtWidgets.QMessageBox(self.centralwidget)
+        about.resize(self.length_window, self.height_window)
+        about.setWindowTitle('Инструкция по работе с программой')
+        about.setText("""
+                               """)
+        about.setStyleSheet("color: rgb(200, 200, 200);\n"
+                            "background-color: rgb(60, 63, 65);")
+
+        close_btn = about.addButton('Закрыть', about.ButtonRole.NoRole)
+        close_btn.setStyleSheet("background-color: #F4C430;\n"
+                                "color: black;")
+        about.exec()
 
     def path_to_open(self):
         """Считывает путь к указанному файлу для его открытия.
