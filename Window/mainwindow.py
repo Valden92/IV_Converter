@@ -96,7 +96,7 @@ class Ui_MainWindow(QWidget):
         self.startButton = self.createStart_button()
         self.logging = self.createLog_area()
         self.createLabel_text(self.centralwidget, 180, 510, 383, 20,
-                              "  Результаты:",
+                              "  Сообщения программы:",
                               background="background-color: rgb(51, 72, 83);")
 
         self.MainWindow.setCentralWidget(self.centralwidget)
@@ -171,6 +171,7 @@ class Ui_MainWindow(QWidget):
         self.diameter.setStyleSheet("background-color: rgb(60, 63, 65);\n"
                                     "color: rgb(225, 225, 225);")
         self.diameter.setObjectName("diameter")
+
         self.horizontalLayout_diameter.addWidget(self.diameter)
 
         label_diameter_text_2 = self.createLabel_text(self.widget_diameter, 0, 0, 0, 0,
@@ -238,6 +239,7 @@ class Ui_MainWindow(QWidget):
         """
         self.widget_path_to.setGeometry(QtCore.QRect(40, 290, 411, 36))
         self.widget_path_to.setObjectName("widget_path_to")
+        self.widget_path_to.setWhatsThis('Выберите CSV файл с иземерениями, либо укажите путь к нему.')
 
         self.horizontalLayout_path_to.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetNoConstraint)
         self.horizontalLayout_path_to.setContentsMargins(0, 0, 0, 0)
@@ -281,6 +283,9 @@ class Ui_MainWindow(QWidget):
         """
         self.widget_path_out.setGeometry(QtCore.QRect(40, 390, 411, 36))
         self.widget_path_out.setObjectName("widget_path_out")
+        self.widget_path_out.setWhatsThis('Выберите папку или впишите путь для сохранения результатов расчета.'
+                                          ' Если конечная папка не будет выбрана, то результаты сохранятся в'
+                                          ' директории программы.')
 
         self.horizontalLayout_path_out.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetNoConstraint)
         self.horizontalLayout_path_out.setContentsMargins(0, 0, 0, 0)
@@ -324,6 +329,8 @@ class Ui_MainWindow(QWidget):
         """
         self.widget_filename.setGeometry(QtCore.QRect(40, 450, 523, 32))
         self.widget_filename.setObjectName("widget_filename")
+        self.widget_filename.setWhatsThis('Впишите конечное имя для файлов с результатами для дальнейшей'
+                                          ' идентификации.')
 
         self.horizontalLayout_filename.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_filename.setObjectName("horizontalLayout_filename")
@@ -361,6 +368,7 @@ class Ui_MainWindow(QWidget):
         self.startButton.setStyleSheet("background-color: rgb(73, 156, 84);\n"
                                        "color: rgb(40, 40, 40);")
         self.startButton.setObjectName("startButton")
+        self.startButton.setWhatsThis('Нажать для начала процесса обработки данных файла.')
 
         self.startButton.clicked.connect(self.start_analytical_part)
 
@@ -374,6 +382,8 @@ class Ui_MainWindow(QWidget):
                                    "color: rgb(200, 200, 200);")
         self.logging.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft |
                                   QtCore.Qt.AlignmentFlag.AlignBottom)
+        self.logging.setWhatsThis('Здесь выводятся сообщения для пользователя о работе программы и результатах'
+                                  ' расчетов.')
 
         log_text_widget = QtWidgets.QLabel(self.logging_text, parent=self.logging)
         log_text_widget.setMargin(5)
