@@ -32,8 +32,9 @@ class AnalitycalCalc:
         self.trunc_voltage = {}
 
         # Расчетные значения коэффициентов.
-        self.b = {}
-        self.fi = {}
+        self.b = {}    # Ток насыщения
+        self.fi = {}   # Высота барьера
+        self.n = {}    # Коэффициент идеальности
 
         # Прочие настройки
         self.file_format = '.png'
@@ -106,6 +107,7 @@ class AnalitycalCalc:
                                                                                  self.direct_voltage[i])
             self.b[i] = self.__search_b(self.trunc_voltage[i], self.trunc_current[i])
             self.fi[i] = self.__search_fi(self.b[i], self.diameter)
+            self.n[i] = self.__search_b(self.trunc_current[i], self.trunc_voltage[i])
 
     def __range_clipping(self, x, y):
         """Отсекает в массивах данные, входящие определенный диапазон и возвращает эти данные.
@@ -155,18 +157,22 @@ class AnalitycalCalc:
             self.__generate_graphics(self.direct_current, self.direct_voltage, 'direct')
 
     def __generate_graphics(self, current, voltage, graph_direction):
+        """Обрабатывает данные и строит графики в зависимости от передаваемых параметров в программе.
+        """
         if self.is_separate:
             for i in range(len(current)):
                 axs = self.__plot_settings()
                 c = list(map(abs, current[i]))
                 v = voltage[i][:len(current[i])]
 
-                plt.plot(v, c, label=('\nВысота барьера= {} эВ'
-                                      '\nТок насыщения= {} А'.format(self.special_rounder(self.fi[i]),
-                                                                     self.special_rounder(self.b[i]))
+                plt.plot(v, c, label=('\nφ= {} эВ'
+                                      '\nb= {} А'
+                                      '\nn= {}'.format(self.special_rounder(self.fi[i]),
+                                                       self.special_rounder(self.b[i]),
+                                                       self.special_rounder(self.n[i]))
                                       ))
                 if graph_direction == 'direct':
-                    plt.legend()
+                    plt.legend(loc=2, bbox_to_anchor=(1.05, 1), borderaxespad=0.)
                 if max(v) < 0:
                     axs.set_xlim([min(v), 0])
                 else:
@@ -174,16 +180,18 @@ class AnalitycalCalc:
 
                 incomplete_name = graph_direction + '_' + str(i)
                 saving_path = self.__generate_filename(incomplete_name, graph_direction)
-                plt.savefig(saving_path)
+                plt.savefig(saving_path, bbox_inches='tight')
         else:
             axs = self.__plot_settings()
             for i in range(len(current)):
                 c = list(map(abs, current[i]))
                 v = voltage[i][:len(current[i])]
 
-                plt.plot(v, c, label=('\nВысота барьера= {} эВ'
-                                      '\nТок насыщения= {} А'.format(self.special_rounder(self.fi[i]),
-                                                                     self.special_rounder(self.b[i]))
+                plt.plot(v, c, label=('\nφ= {} эВ'
+                                      '\nb= {} А'
+                                      '\nn= {}'.format(self.special_rounder(self.fi[i]),
+                                                       self.special_rounder(self.b[i]),
+                                                       self.special_rounder(self.n[i]))
                                       ))
                 if max(v) < 0:
                     axs.set_xlim([min(v), 0])
@@ -191,14 +199,16 @@ class AnalitycalCalc:
                     axs.set_xlim([0, max(v)])
 
             if graph_direction == 'direct':
-                plt.legend()
+                plt.legend(loc=2, bbox_to_anchor=(1.05, 1), borderaxespad=0.)
             saving_path = self.__generate_filename(graph_direction, graph_direction)
-            plt.savefig(saving_path)
+
+            plt.savefig(saving_path, bbox_inches='tight')
 
     def __plot_settings(self):
-        """Создание объекта графика и его настроек.
+        """Создание экземпляра графика и его настроек.
         """
         fig = plt.figure()
+        # axs = fig.add_axes([0.13, 0.1, 0.55, 0.75])
         axs = fig.add_subplot(1, 1, 1)
 
         # Настройки графика.
@@ -223,14 +233,19 @@ class AnalitycalCalc:
         return str(round(number, 3))
 
     def print_coefficient(self):
+        """Выводит коэффициенты в консоль.
+        """
         if self.b:
             for i in range(len(self.direct_current)):
-                print('b = ', self.b[i])
-                print('fi = ', self.fi[i])
+                print('Ток насыщения: ', self.b[i])
+                print('Высота барьера: ', self.fi[i])
+                print('Коэффициент идеальности: ', self.n[i])
         else:
             print('Коэффициенты не были рассчитаны.')
 
     def run_program(self):
+        """Запуск обработки файла, расчета данных и построения графиков.
+        """
         self.__read_file()
         self.__filter_mass()
         self.__coefficient_calc()
@@ -290,11 +305,11 @@ class AnalitycalCalc:
     @staticmethod
     def __search_b(x, y):
         """
-        Поиск коэффициента b по методу наименьших квадратов (МНК).
+        Поиск Тока насыщения по методу наименьших квадратов (МНК).
 
         :param  x - массив Напряжений.
         :param  y - массив Токов.
-        :return m - возвращаемое экспоненциальное значение от найденного коэффициента.
+        :return m - возвращаемое экспоненциальное значение от найденного коэффициента в амперах.
         """
         x = numpy.array(x)
         y = numpy.array(y)
@@ -306,18 +321,35 @@ class AnalitycalCalc:
     @staticmethod
     def __search_fi(bi, d):
         """
-        Поиск коэффициента Фи.
+        Поиск Высоты барьера.
 
-        :param bi - коэффициент найденный по методу МНК в функции search_b.
-        :param  d - диаметр контакта.
-        :return f - Возвращаемый коэффициент Фи.
+        :param bi - коэффициент (ток насыщения в А) найденный по методу МНК в функции search_b.
+        :param  d - диаметр контакта в мкм.
+        :return f - Возвращаемый коэффициент Фи - высота барьера в электронвольтах.
         """
         # Объявление констант.
         __K = 1.38e-23  # Постоянная Больцмана.
-        __A = 264  # Постоянная Ридчарсона.
-        __T = 300  # Температура нагрева во время измерения.
-        __Q = 1.6e-19  # Заряд
+        __A = 264       # Постоянная Ридчарсона.
+        __T = 300       # Температура нагрева во время измерения.
+        __Q = 1.6e-19   # Заряд
 
         f = ((__K * __T) / __Q) * log(((__A * (__T ** 2)) / (bi / (((d ** 2) * pi) / 4))))
 
         return f
+
+    @staticmethod
+    def __search_n(current, voltage):
+        """Поиск коэффициента идеальности.
+
+        :param current - усеченный массив токов.
+        :param voltage - усеченный массив напряжений.
+        :return n      - возвращаемый коэффициент идеальности (безразмерная величина).
+        """
+        # Объявление констант.
+        __K = 1.38e-23  # Постоянная Больцмана.
+        __T = 300       # Температура нагрева во время измерения.
+        __Q = 1.6e-19   # Заряд
+
+        n = ((voltage[-1] - voltage[0])/(log(current[-1]) - log(current[0]))) * (__Q / (__K * __T))
+
+        return n

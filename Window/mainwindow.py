@@ -100,7 +100,6 @@ class Ui_MainWindow(QWidget):
                               background="background-color: rgb(51, 72, 83);")
 
         self.MainWindow.setCentralWidget(self.centralwidget)
-
         self.MainWindow.setStatusBar(self.createStatusbar())
 
     def createMenu(self):
@@ -394,6 +393,7 @@ class Ui_MainWindow(QWidget):
         log_text_widget.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
 
         self.logging.setWidget(log_text_widget)
+        self.logging.verticalScrollBar().setValue(self.logging.maximumHeight())
 
         return self.logging
 
@@ -401,10 +401,8 @@ class Ui_MainWindow(QWidget):
         """Настройки статусбара.
         """
         self.statusbar.setStyleSheet("color: rgb(150, 150, 150);\n"
-                                     "background-color: rgb(60, 63, 65);")
-        # self.statusbar.setStyleSheet("QStatusBar{border: None;"
-        #                              "color: rgb(150, 150, 150);"
-        #                              "background-color: rgb(60, 63, 65);}")
+                                     "background-color: rgb(60, 63, 65);\n")
+
         self.statusbar.setObjectName("statusbar")
 
         my_message = QtWidgets.QLabel(self.MainWindow)
@@ -446,7 +444,6 @@ class Ui_MainWindow(QWidget):
         line.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
 
         return line
-
 
     # Прочие методы, инициализирующие внутреннюю работу программы.
 
@@ -551,10 +548,12 @@ class Ui_MainWindow(QWidget):
         """
         for i in range(len(calc_obj.b.keys())):
             self.logging_text = self.logging_text + '\n' +\
-                                '> {}) Высота барьера: {} эВ,\n' \
-                                '      Ток насыщения: {} А'.format(str(i+1),
-                                                                   calc_obj.special_rounder(calc_obj.fi[i]),
-                                                                   calc_obj.special_rounder(calc_obj.b[i]))
+                                '> {}) φ = {} эВ,' \
+                                ' b = {} А,' \
+                                ' n = {}'.format(str(i+1),
+                                                 calc_obj.special_rounder(calc_obj.fi[i]),
+                                                 calc_obj.special_rounder(calc_obj.b[i]),
+                                                 calc_obj.special_rounder(calc_obj.n[i]))
         self.logging_text = self.logging_text + '\n' + '> Конвертирование завершено удачно.\n> Графики построены.\n'
         self.logging = self.createLog_area()
 
