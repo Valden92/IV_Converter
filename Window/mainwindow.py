@@ -1,5 +1,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import QThread, pyqtSignal
 import sys
 import os
 from analitycal_class import AnalitycalCalc
@@ -55,6 +56,9 @@ class Ui_MainWindow(QWidget):
 
         # Кнопка начала процесса обработки
         self.startButton = QtWidgets.QPushButton(self.centralwidget)
+        self.counter = 0
+        self.gif_label = QtWidgets.QLabel(self.centralwidget)
+        self.gif = QtGui.QMovie(os.path.join(os.getcwd(), 'image', 'loading.gif'))
 
         # Логгинизация процессов
         self.logging = QtWidgets.QScrollArea(self.centralwidget)
@@ -94,6 +98,7 @@ class Ui_MainWindow(QWidget):
         self.createLine(0, 500, self.length_window, 3)
 
         self.startButton = self.createStart_button()
+
         self.logging = self.createLog_area()
         self.createLabel_text(self.centralwidget, 180, 510, 383, 20,
                               "  Сообщения программы:",
@@ -360,7 +365,7 @@ class Ui_MainWindow(QWidget):
     def createStart_button(self):
         """Создает кнопку для начала обработки файла.
         """
-        self.startButton.setGeometry(QtCore.QRect(40, 540, 101, 91))
+        self.startButton.setGeometry(QtCore.QRect(40, 540, 100, 100))
         self.startButton.setText('START')
         font = QtGui.QFont()
         font.setPointSize(15)
@@ -370,7 +375,6 @@ class Ui_MainWindow(QWidget):
                                        "color: rgb(40, 40, 40);")
         self.startButton.setObjectName("startButton")
         self.startButton.setWhatsThis('Нажать для начала процесса обработки данных файла.')
-
         self.startButton.clicked.connect(self.start_analytical_part)
 
         return self.startButton
@@ -410,6 +414,15 @@ class Ui_MainWindow(QWidget):
         self.statusbar.addPermanentWidget(my_message)
 
         return self.statusbar
+
+    def createGif(self):
+        """Создает изображение загрузки.
+        """
+        self.gif_label.setGeometry(QtCore.QRect(40, 540, 100, 100))
+        self.gif_label.setObjectName("gif_label")
+        self.gif_label.setMovie(self.gif)
+
+        return self.gif_label
 
     # Методы построения различных общих элементов.
 
@@ -563,6 +576,7 @@ class Ui_MainWindow(QWidget):
         self.data_validation()
 
         if self.is_diameter and self.is_path_to:
+            self.counter += 1
             calc_obj = AnalitycalCalc(
                 self.path_label.text(),
                 self.diameter.text(),
@@ -583,6 +597,10 @@ class Ui_MainWindow(QWidget):
                 self.logging = self.createLog_area()
             else:
                 self.visual_result(calc_obj)
+            finally:
+                print(self.counter)
+
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

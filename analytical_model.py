@@ -5,9 +5,7 @@ import os
 from math import log, exp, pi
 
 
-class AnalitycalCalc:
-    """Получает файл и обрабатывает его особым образом.
-    """
+class AnalyticalModel:
 
     def __init__(self, path_to_file, diameter, separate_graph, inverse_graph, path_to_save, files_name):
 
@@ -37,6 +35,7 @@ class AnalitycalCalc:
         self.n = {}    # Коэффициент идеальности
 
         # Прочие настройки
+        self.fig = None
         self.file_format = '.png'
         self.x_label = 'U, В'
         self.y_label = 'I, А'
@@ -181,6 +180,7 @@ class AnalitycalCalc:
                 incomplete_name = graph_direction + '_' + str(i)
                 saving_path = self.__generate_filename(incomplete_name, graph_direction)
                 plt.savefig(saving_path, bbox_inches='tight')
+                plt.close(self.fig)
         else:
             axs = self.__plot_settings()
             for i in range(len(current)):
@@ -203,13 +203,13 @@ class AnalitycalCalc:
             saving_path = self.__generate_filename(graph_direction, graph_direction)
 
             plt.savefig(saving_path, bbox_inches='tight')
+            plt.close(self.fig)
 
     def __plot_settings(self):
         """Создание экземпляра графика и его настроек.
         """
-        fig = plt.figure()
-        # axs = fig.add_axes([0.13, 0.1, 0.55, 0.75])
-        axs = fig.add_subplot(1, 1, 1)
+        self.fig = plt.figure()
+        axs = self.fig.add_subplot(1, 1, 1)
 
         # Настройки графика.
         axs.set_yscale('log')
