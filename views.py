@@ -1,8 +1,8 @@
 from PyQt6.QtCore import QRect, Qt, QSize
-from PyQt6.QtGui import QIcon, QAction, QFont
+from PyQt6.QtGui import QIcon, QAction, QFont, QKeySequence
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QMenuBar, QMenu, QLineEdit, QVBoxLayout, QHBoxLayout,
                              QCheckBox, QToolButton, QPushButton, QPlainTextEdit, QStatusBar, QSpacerItem,
-                             QSizePolicy, QLayout, QLabel, QFrame)
+                             QSizePolicy, QLayout, QLabel, QFrame, QDialog, QTextBrowser)
 
 import os
 
@@ -44,6 +44,13 @@ class MainWindow(QMainWindow):
         self.exit = QAction(self.menu)
         self.setup_menu()
         self.main_window.setMenuBar(self.menu_bar)
+
+        # Вызов диалогового окна Инструкций к программе
+        self.dlg_instructions = QDialog(self.main_window)
+        self.dlg_btn = QPushButton(self.dlg_instructions)
+
+
+        # Вызов диалогового окна Описания к программе
 
         # Настройка и создание окна ввода диаметра
         self.widget_diameter = QWidget(self.central_widget)
@@ -124,14 +131,17 @@ class MainWindow(QMainWindow):
         # Кнопка "Инструкция"
         self.instruction.setText("Инструкция")
         self.instruction.setObjectName("instruction")
+        self.instruction.setShortcut(QKeySequence('Ctrl+N'))
 
         # Кнопка "О программе"
         self.about.setText("О программе")
         self.about.setObjectName("about")
+        self.about.setShortcut(QKeySequence('Ctrl+A'))
 
         # Кнопка "Выход"
         self.exit.setText("Выход")
         self.exit.setObjectName("exit")
+        self.exit.setShortcut(QKeySequence('Esc'))
 
         # Расположение кнопок в Меню
         self.menu.addAction(self.instruction)
@@ -139,6 +149,61 @@ class MainWindow(QMainWindow):
         self.menu.addSeparator()
         self.menu.addAction(self.exit)
         self.menu_bar.addAction(self.menu.menuAction())
+
+    def create_dialog_instructions(self):
+        """Генерирует диалоговое окно после нажатия на кнопку инструкций.
+        """
+        w = 570
+        h = 600
+        self.dlg_instructions.setWindowTitle('Инструкции к программе')
+        self.dlg_instructions.setFixedSize(w, h)
+
+        text_html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">\n"\
+                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"\
+                    "p, li { white-space: pre-wrap; }\n"\
+                    "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"\
+                    "<p align=\"justify\" style=\"-qt-paragraph-type:empty; font-size:8pt;\"><br /></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Для успешного использования программы заполните все необходимые данные в полях ввода и нажмите кнопку </span><span style=\" font-size:10pt; font-weight:600;\">“START”</span><span style=\" font-size:10pt;\">. Минимальные и необходимые данные для начала работы:</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">            - диаметр в микрометрах;</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">            - путь к CSV файлу с данными для расчета.</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Программа умеет работать только с файлами формата CSV, которые заполнены особым образом с помощью программы измерения вольт-амперных характеристик. </span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">При работе с программой стоит учитывать: </span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">- Если в одном CSV файле окажутся измерения с контактов разных диаметров, программа не сможет этого распознать и расчеты будут произведены неверно.</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">- При отсутствии пути для сохранения готовых файлов, результаты будут сохранены в папку с данной программой и разбиты на категории &quot;direct&quot; и &quot;reverse&quot;.</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">- Все сообщения об ошибках и результаты удачных расчетов можно найти в окне &quot;Сообщения программы&quot;.</span></p>\n"\
+                    "<p align=\"justify\" style=\"font-size:10pt;\"><br /></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:11pt; font-weight:600;\">Дополнительные настройки:</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Чекбокс &quot;Разбить на отдельные графики&quot; позволяет строить каждую кривую на собственной оси координат. Результат будет сохранен в отдельный файл. В противном случае все кривые будут построены на одной оси координат и сохранены в один файл.</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Чекбокс &quot;Строить обратные кривые&quot; позволяет построить вольт-амперные характеристики из отрицательной зоны оси координат. Данные будут сохранены на отдельных файлах в папке &quot;reverse&quot;.</span></p>\n"\
+                    "<p align=\"justify\" style=\"font-size:10pt;\"><br /></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:12pt; font-weight:600;\">Горячие клавиши: </span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + N – Открыть инструкцию к программе.</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + A – Открыть описание программы.</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + O – Указать путь к файлу.</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + D – Указать директорию для сохранения данных.</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + S – Запустить расчет.</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">     Esc – Закрыть программу или активное окно.</span></p>" \
+                    "<p align=\"justify\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p>\n"\
+                    "</body></html>"
+
+        text_edit = QTextBrowser(self.dlg_instructions)
+        text_edit.setFixedSize(w, 559)
+        text_edit.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
+        text_edit.setHtml(text_html)
+        text_edit.setStyleSheet("background-color: rgb(60, 63, 65);\n"
+                                "color: rgb(200, 200, 200);\n")
+
+        # Настройка кнопки закрытия окна
+        self.dlg_btn.setGeometry(QRect(0, 560, 600, 40))
+        self.dlg_btn.setText('ОК')
+        font = QFont()
+        font.setPointSize(13)
+        font.setBold(True)
+        self.dlg_btn.setFont(font)
+        self.dlg_btn.setStyleSheet("background-color: #F4C430;\n"
+                                   "color: rgb(40, 40, 40);")
+
+        self.dlg_instructions.exec()
 
     def setup_diameter(self):
         """Настройка окна ввода диаметра контакта.
@@ -237,6 +302,7 @@ class MainWindow(QMainWindow):
         self.path_to_btn.setStyleSheet("background-color: #F4C430;\n"
                                        "selection-background-color: rgb(60, 63, 65);\n"
                                        "color: rgb(0, 0, 0);")
+        self.path_to_btn.setShortcut(QKeySequence('Ctrl+O'))
         self.h_layout_path_to.addWidget(self.path_to_btn)
 
         self.path_label.setMaximumSize(QSize(16777215, 30))
@@ -279,6 +345,7 @@ class MainWindow(QMainWindow):
         self.path_out_btn.setStyleSheet("background-color: #F4C430;\n"
                                         "selection-background-color: rgb(60, 63, 65);\n"
                                         "color: rgb(0, 0, 0);")
+        self.path_out_btn.setShortcut(QKeySequence('Ctrl+D'))
         self.h_layout_path_out.addWidget(self.path_out_btn)
 
         self.save_label.setMaximumSize(QSize(16777215, 30))
@@ -334,6 +401,7 @@ class MainWindow(QMainWindow):
                                      "color: rgb(40, 40, 40);")
         self.start_btn.setObjectName("Start Button")
         self.start_btn.setWhatsThis('Нажать для начала процесса обработки данных файла.')
+        self.start_btn.setShortcut(QKeySequence('Ctrl+S'))
 
     def setup_output_inf(self):
         """Настройка окна вывода информации для пользователя.
