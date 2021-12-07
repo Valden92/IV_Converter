@@ -128,7 +128,7 @@ class AnalyticalModel:
     def __generate_filename(self, incomplete_name, graph_direction):
         """Генеирирует конечное имя файлов и путь для их дальнейшего сохранения.
         """
-        if self.filename == '  Введите название...':
+        if self.filename == '  Введите название...' or self.filename.isspace():
             self.filename = 'ВАХ'
 
         if os.path.isdir(self.path_to_save):
