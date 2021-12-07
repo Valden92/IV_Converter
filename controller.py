@@ -19,7 +19,8 @@ class Controller(MainWindow):
         self.last_message = None
 
         # Меню
-        self.instruction.triggered.connect(self.open_menu)
+        self.instruction.triggered.connect(self.open_instructions)
+        self.dlg_btn.released.connect(self.close_instructions)
         self.about.triggered.connect(self.open_about)
         self.exit.triggered.connect(self.exit_program)
 
@@ -48,10 +49,17 @@ class Controller(MainWindow):
         self.is_start_process = False
         self.process_error = False
 
-    def open_menu(self):
+    def open_instructions(self):
         if self.process is None:
             self.process_start('> Вы открыли инструкции к программе.',
                                'Instructions have been opened')
+            self.create_dialog_instructions()
+
+    def close_instructions(self):
+        if self.process is None:
+            self.process_start('> Окно инструкций закрыто.',
+                               'Instructions window closed')
+            self.dlg_instructions.close()
 
     def open_about(self):
         if self.process is None:
