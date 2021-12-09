@@ -1,13 +1,14 @@
+import os
 from PyQt6.QtCore import QRect, Qt, QSize
 from PyQt6.QtGui import QIcon, QAction, QFont, QKeySequence
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QMenuBar, QMenu, QLineEdit, QVBoxLayout, QHBoxLayout,
                              QCheckBox, QToolButton, QPushButton, QPlainTextEdit, QStatusBar, QSpacerItem,
                              QSizePolicy, QLayout, QLabel, QFrame, QDialog, QTextBrowser)
 
-import os
-
 
 class MainWindow(QMainWindow):
+    """Настройка визуальных представлений программы.
+    """
 
     def __init__(self):
         super().__init__()
@@ -49,8 +50,9 @@ class MainWindow(QMainWindow):
         self.dlg_instructions = QDialog(self.main_window)
         self.dlg_btn = QPushButton(self.dlg_instructions)
 
-
         # Вызов диалогового окна Описания к программе
+        self.dlg_about = QDialog(self.main_window)
+        self.dlg_btn_2 = QPushButton(self.dlg_about)
 
         # Настройка и создание окна ввода диаметра
         self.widget_diameter = QWidget(self.central_widget)
@@ -136,7 +138,7 @@ class MainWindow(QMainWindow):
         # Кнопка "О программе"
         self.about.setText("О программе")
         self.about.setObjectName("about")
-        self.about.setShortcut(QKeySequence('Ctrl+A'))
+        self.about.setShortcut(QKeySequence('Ctrl+B'))
 
         # Кнопка "Выход"
         self.exit.setText("Выход")
@@ -178,7 +180,7 @@ class MainWindow(QMainWindow):
                     "<p align=\"justify\" style=\"font-size:10pt;\"><br /></p>\n"\
                     "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:12pt; font-weight:600;\">Горячие клавиши: </span></p>\n"\
                     "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + N – Открыть инструкцию к программе.</span></p>\n"\
-                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + A – Открыть описание программы.</span></p>\n"\
+                    "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + B – Открыть описание программы.</span></p>\n"\
                     "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + O – Указать путь к файлу.</span></p>\n"\
                     "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + D – Указать директорию для сохранения данных.</span></p>\n"\
                     "<p align=\"justify\" style=\"margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Ctrl + S – Запустить расчет.</span></p>\n"\
@@ -204,6 +206,35 @@ class MainWindow(QMainWindow):
                                    "color: rgb(40, 40, 40);")
 
         self.dlg_instructions.exec()
+
+    def create_dialog_about(self):
+        """Генерирует диалоговое окно после нажатия на кнопку описания программы.
+        """
+        w = 570
+        h = 600
+        self.dlg_about.setWindowTitle('Описание программы')
+        self.dlg_about.setFixedSize(w, h)
+
+        text_html = "ЗДЕСЬ БУДЕТ ТЕКСТ"
+
+        text_edit = QTextBrowser(self.dlg_about)
+        text_edit.setFixedSize(w, 559)
+        text_edit.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
+        text_edit.setHtml(text_html)
+        text_edit.setStyleSheet("background-color: rgb(60, 63, 65);\n"
+                                "color: rgb(200, 200, 200);\n")
+
+        # Настройка кнопки закрытия окна
+        self.dlg_btn_2.setGeometry(QRect(0, 560, 600, 40))
+        self.dlg_btn_2.setText('ОК')
+        font = QFont()
+        font.setPointSize(13)
+        font.setBold(True)
+        self.dlg_btn_2.setFont(font)
+        self.dlg_btn_2.setStyleSheet("background-color: #F4C430;\n"
+                                     "color: rgb(40, 40, 40);")
+
+        self.dlg_about.exec()
 
     def setup_diameter(self):
         """Настройка окна ввода диаметра контакта.
