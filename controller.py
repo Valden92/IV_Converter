@@ -9,6 +9,8 @@ from PyQt6.QtCore import QProcess
 
 
 class Controller(MainWindow):
+    """Контроль процессов и нажатий внутри программы.
+    """
 
     def __init__(self):
         super().__init__()
@@ -22,6 +24,7 @@ class Controller(MainWindow):
         self.instruction.triggered.connect(self.open_instructions)
         self.dlg_btn.released.connect(self.close_instructions)
         self.about.triggered.connect(self.open_about)
+        self.dlg_btn_2.released.connect(self.close_about)
         self.exit.triggered.connect(self.exit_program)
 
         # Диаметр
@@ -50,34 +53,55 @@ class Controller(MainWindow):
         self.process_error = False
 
     def open_instructions(self):
+        """Вывод сообщений при открытии инструкций к программе.
+        """
         if self.process is None:
             self.process_start('> Вы открыли инструкции к программе.',
                                'Instructions have been opened')
             self.create_dialog_instructions()
 
     def close_instructions(self):
+        """Вывод сообщений при закрытии инструкций к программе.
+        """
         if self.process is None:
             self.process_start('> Окно инструкций закрыто.',
                                'Instructions window closed')
             self.dlg_instructions.close()
 
     def open_about(self):
+        """Вывод сообщений при открытии описания к программе.
+        """
         if self.process is None:
             self.process_start('> Вы открыли описание программы.',
-                               'The description of the program has been opened')
+                               'Description of the program has been opened')
+            self.create_dialog_about()
+
+    def close_about(self):
+        """Вывод сообщений при закрытии описания к программе.
+        """
+        if self.process is None:
+            self.process_start('> Вы закрыли описание программы.',
+                               'Description of the program is closed')
+            self.dlg_about.close()
 
     def exit_program(self):
+        """Вывод сообщений при попытке покинуть программу через основное меню.
+        """
         if self.process is None:
             self.process_start('> Вы пытаетесь покинуть программу.',
                                'Exiting the program?')
             self.create_exit_message()
 
     def diameter_changed(self):
+        """Вывод сообщений при изменении значений диаметра контакта.
+        """
         if self.process is None:
             self.process_start('> Вы изменили диметр контакта.',
                                'Contact diameter has been changed')
 
     def sep_graph_changed(self):
+        """Вывод сообщений при изменении состояния чекбокса на значении Сепартора графика.
+        """
         if self.process is None:
             if self.check_separate_graph.isChecked():
                 self.process_start('> Все графики будут построены по отдельности.',
@@ -87,6 +111,8 @@ class Controller(MainWindow):
                                    'Plot separator changed')
 
     def inv_graph_changed(self):
+        """Вывод сообщений при изменении состояния чекбокса на значении Инверсионного графика.
+        """
         if self.process is None:
             if self.check_inverse_graph.isChecked():
                 self.process_start('> Будут построены кривые из отрицательной области ВАХ.',
@@ -96,6 +122,8 @@ class Controller(MainWindow):
                                    'Inversion check changed')
 
     def open_file(self):
+        """Вывод сообщений при нажатии на кнопку указания пути к CSV файлу.
+        """
         if self.process is None:
             self.process_start('> Укажите корректный путь к CSV файлу.',
                                'Specifying the path to the CSV file')
@@ -105,11 +133,15 @@ class Controller(MainWindow):
                 self.path_label.setText(path_to_file)
 
     def path_label_changed(self):
+        """Вывод сообщений при изменении пути к CSV файлу.
+        """
         if self.process is None:
             self.process_start('> Путь к файлу изменен.',
                                'File path changed')
 
     def save_output(self):
+        """Вывод сообщений при нажатии на кнопку указания пути для сохранения результатов.
+        """
         if self.process is None:
             self.process_start('> Укажите корректный путь для сохранения конечных данных.',
                                'Changing the destination path for saving data')
@@ -119,16 +151,22 @@ class Controller(MainWindow):
                 self.save_label.setText(path_to_dir)
 
     def save_label_changed(self):
+        """Вывод сообщений об изменении пути для сохранения резйльтатов.
+        """
         if self.process is None:
             self.process_start('> Путь для сохранения данных изменен.',
                                'Path for saving data has been changed')
 
     def output_changed(self):
+        """Вывод сообщений об изменении названия конечных файлов.
+        """
         if self.process is None:
             self.process_start('> Название конечных файлов применено.',
                                'File names changed')
 
     def start_calculation(self):
+        """Запуск процесса расчета и оповещение пользователя о начале процессов.
+        """
         if self.process is None:
             self.is_start_process = True
             self.start_btn.setEnabled(False)
@@ -142,6 +180,8 @@ class Controller(MainWindow):
             self.process.finished.connect(self.process_finished)
 
     def process_start(self, text_1, text_2):
+        """Управление первичным процессом (нитью) поверх основного.
+        """
         if self.last_message != text_1:
             self.last_message = text_1
             self.output_inf.appendPlainText(text_1)
@@ -151,7 +191,8 @@ class Controller(MainWindow):
         self.process.finished.connect(self.process_finished)
 
     def process_finished(self):
-
+        """Завершает работу процессов запущенных трейдов.
+        """
         if self.is_start_process and self.process_2 is None:
             self.validation()
             self.process_2 = QProcess()
@@ -162,6 +203,7 @@ class Controller(MainWindow):
                 self.status_bar.showMessage('Calculation failed')
                 self.process_2.finished.connect(self.process_2_finished)
             else:
+                # Запуск расчетов
                 self.run_calculate()
                 if self.process_error:
                     self.last_message = '> Ошибка загрузки файла. Расчет не удался.'
@@ -180,6 +222,8 @@ class Controller(MainWindow):
         self.process = None
 
     def process_2_finished(self):
+        """Для управление вторичным процессом.
+        """
         self.process_2 = None
 
     def create_exit_message(self):
@@ -206,6 +250,8 @@ class Controller(MainWindow):
             app.exit()
 
     def validation(self):
+        """Проверяет на наличие ошибок ввода пользователем.
+        """
         if float(self.diameter.text()) > 0:
             self.is_diameter = True
         else:
@@ -219,6 +265,8 @@ class Controller(MainWindow):
             self.is_path_to = True
 
     def run_calculate(self):
+        """Запускает расчеты, генерируя экземпляр калькулятора для расчета.
+        """
         if self.is_diameter and self.is_path_to:
             calc_obj = AnalyticalModel(
                 self.path_label.text(),
@@ -242,7 +290,7 @@ class Controller(MainWindow):
                 self.visual_result(calc_obj)
 
     def visual_result(self, calc_obj):
-        """Выводит результаты расчетов в Лог.
+        """Выводит результаты расчетов в Лог программы для пользователя.
         """
         for i in range(len(calc_obj.b.keys())):
             text = '> {}) φ = {} эВ,' \
