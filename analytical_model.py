@@ -6,6 +6,8 @@ from math import log, exp, pi
 
 
 class AnalyticalModel:
+    """Настройка внутренней обработки файла и переданных с ним данных.
+    """
 
     def __init__(self, path_to_file, diameter, separate_graph, inverse_graph, path_to_save, files_name):
 
