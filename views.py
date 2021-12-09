@@ -215,7 +215,25 @@ class MainWindow(QMainWindow):
         self.dlg_about.setWindowTitle('Описание программы')
         self.dlg_about.setFixedSize(w, h)
 
-        text_html = "ЗДЕСЬ БУДЕТ ТЕКСТ"
+        text_html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">\n"\
+                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"\
+                    "p, li { white-space: pre-wrap; }\n"\
+                    "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"\
+                    "<p align=\"justify\" style=\"-qt-paragraph-type:empty;\"><br /></p>\n"\
+                    "<p align=\"justify\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Программа используется для получения данных из CSV файла, сгенерированного путем записи на специальной измерительной станции во время измерения характеристик контактов. Полученный файл может содержать множество различных данных, но для расчетов и построений графиков требуются только значения Токов (</span><span style=\" font-size:10pt; font-style:italic;\">I, А</span><span style=\" font-size:10pt;\">) и Напряжений (</span><span style=\" font-size:10pt; font-style:italic;\">U, В</span><span style=\" font-size:10pt;\">) контактов. Диаметр (</span><span style=\" font-size:10pt; font-style:italic;\">d, мкм</span><span style=\" font-size:10pt;\">) измеряемой контактной площадки вводится вручную в интерфейсе программы. </span></p>\n"\
+                    "<p align=\"justify\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">После получения необходимого массива данных программа строит вольт-амперные характеристики, где по оси Y расположены Токи, а по оси X – Напряжения. Графики строятся в логарифмических шкалах. </span></p>\n"\
+                    "<p align=\"justify\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Дополнительно производятся расчеты коэффициентов для дальнейшей аналитической оценки измеряемого контакта: </span></p>\n"\
+                    "<p align=\"justify\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">    - ток насыщения (</span><span style=\" font-size:10pt; font-style:italic;\">b, А</span><span style=\" font-size:10pt;\">); </span></p>\n"\
+                    "<p align=\"justify\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">    - высота барьера (</span><span style=\" font-family:\'Calibri\',\'sans-serif\'; font-size:10pt; font-style:italic;\">ϕ</span><span style=\" font-size:10pt; font-style:italic;\">, Эв</span><span style=\" font-size:10pt;\">); </span></p>\n"\
+                    "<p align=\"justify\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">    - коэффициент неидеальности. </span></p>\n"\
+                    "<p align=\"justify\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:10pt;\">Результаты расчетов коэффициентов можно найти в окне вывода сообщений программы, либо на построенных графических изображениях.</span></p>\n"\
+                    "<p align=\"justify\" style=\"-qt-paragraph-type:empty;\"><br /></p>\n" \
+                    "<p align=\"justify\" style=\"-qt-paragraph-type:empty;\"><br /></p>\n" \
+                    "<p align=\"justify\" style=\"-qt-paragraph-type:empty;\"><br /></p>\n" \
+                    "<p align=\"center\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:8pt;\">Программа разработана на чистом энтузиазме без какой-либо поддержки.</span></p>\n"\
+                    "<p align=\"center\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:8pt;\">Разработчик: Зайцев Д.А. (Danio)</span></p>\n"\
+                    "<p align=\"center\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:8pt;\">Язык разработки: Python 3.10</span></p>\n"\
+                    "<p align=\"center\" style=\" margin-left:10px; margin-right:10px;\"><span style=\" font-size:8pt;\">Копирование кода программы не преследуется по закону :)</span></p>"
 
         text_edit = QTextBrowser(self.dlg_about)
         text_edit.setFixedSize(w, 559)
